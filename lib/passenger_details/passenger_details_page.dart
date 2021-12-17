@@ -8,6 +8,7 @@ import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
 import 'package:gsgflutter/backend/search_response_model.dart';
 import 'package:gsgflutter/config/global_properties.dart';
+import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:gsgflutter/passenger_details/gender.dart';
 import 'package:gsgflutter/passenger_details/mode_of_payment_enum.dart';
 import 'package:gsgflutter/passenger_details/passenger_detain_model.dart';
@@ -29,63 +30,60 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
     double pdn = 5;
     return Column(
       children: [
+        ///Agency name
         Container(
           alignment: Alignment.centerLeft,
           padding: EdgeInsets.all(pdn),
-          child: Flexible(
-            child: Text(
-              widget.searchResponseModel.agencyName,
+          child: Text(widget.searchResponseModel.agencyName,
               style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
+              overflow: TextOverflow.ellipsis),
         ),
+
+        ///Bus name and bus number
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.directions_bus,
-              color: Colors.black,
-            ),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(pdn),
-                    child: Flexible(
-                      child: Text(
-                        "${widget.searchResponseModel.busName} (${widget.searchResponseModel.busNumber})",
-                        style: TextStyle(fontSize: 20, color: Colors.grey[850]),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ],
+            const Icon(Icons.directions_bus, color: Colors.black),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(pdn),
+                child: Text(
+                  "${widget.searchResponseModel.busName} (${widget.searchResponseModel.busNumber})",
+                  style: TextStyle(fontSize: 20, color: Colors.grey[850]),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             )
           ],
         ),
+
+        ///->
         const Divider(
           thickness: 3,
         ),
+
+        ///Departure Arrival Schedule time
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            ///Departure time
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                "${widget.searchResponseModel.departureTime}", // ${ftd.datePicked.format('M j')}",
+                widget.searchResponseModel.departureTime,
                 style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[800],
                     fontWeight: FontWeight.bold),
               ),
             ),
+
+            ///Arrival time
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                "${widget.searchResponseModel.arrivalTime}", // ${ftd.datePicked.format('M j')}",
+                widget.searchResponseModel.arrivalTime,
                 style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[800],
@@ -94,9 +92,12 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             ),
           ],
         ),
+
+        ///Departure Arrival Stops
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            ///Depature Stop
             Flexible(
               child: Padding(
                 padding: EdgeInsets.all(pdn),
@@ -107,6 +108,8 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
                 ),
               ),
             ),
+
+            ///Arrival Stop
             Flexible(
               child: Padding(
                 padding: EdgeInsets.all(pdn),
@@ -119,23 +122,28 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             ),
           ],
         ),
+
+        ///Departure Arrival Schedule Dates
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            ///Departure Date
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                "${widget.ftd.datePicked.format('l, M j')}",
+                widget.ftd.datePicked.format('l, M j'),
                 style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[700],
                     fontWeight: FontWeight.bold),
               ),
             ),
+
+            ///Arrival Date
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                "${widget.ftd.datePicked.format('l, M j')}",
+                widget.ftd.datePicked.format('l, M j'),
                 style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[700],
@@ -144,6 +152,8 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             ),
           ],
         ),
+
+        ///Available Seats now
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -151,40 +161,20 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
               padding: EdgeInsets.all(pdn),
               child: Text(
                 'AVAILABLE-${getCurrentAvlSeats()}',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 20,
                   color: Colors.green,
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ),
-            // Row(
-            //   crossAxisAlignment: CrossAxisAlignment.baseline,
-            //   textBaseline: TextBaseline.ideographic,
-            //   children: [
-            //     Padding(
-            //       padding: const EdgeInsets.all(5),
-            //       child: Text(
-            //         'Rs: ',
-            //         style: TextStyle(fontSize: 20, color: Colors.green[800]),
-            //       ),
-            //     ),
-            //     Padding(
-            //       padding: const EdgeInsets.all(5),
-            //       child: Text(
-            //         each.fare,
-            //         style: TextStyle(fontSize: 25, color: Colors.green[800]),
-            //       ),
-            //     ),
-            //   ],
-            // ),
           ],
         ),
       ],
     );
   }
 
-  //passsenger secton
+  ///passsenger secton Widget
   List<PassangerDetail> addPassengerList = [];
   Widget passengerSection() {
     return Column(
@@ -205,7 +195,6 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
           ],
         ),
         Table(
-          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           columnWidths: const {
             0: FractionColumnWidth(.15),
             1: FractionColumnWidth(.45),
@@ -258,12 +247,11 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
                 TableRow(
                   children: [
                     const Icon(Icons.person),
-                    Flexible(
-                        child: Text(
+                    Text(
                       addPassengerList[index].name,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.bold),
-                    )),
+                    ),
                     Text(
                       "${addPassengerList[index].age}",
                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -388,7 +376,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             ),
             Expanded(
               child: TextFormField(
-                style: TextStyle(fontSize: 18),
+                style: const TextStyle(fontSize: 18),
                 controller: mobController,
                 decoration: const InputDecoration(hintText: '9876543210'),
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -424,44 +412,19 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
       appBar: AppBar(
         title: const Text(
           "Passanger Details",
-          style: TextStyle(
-            fontSize: 25,
-          ),
+          style: TextStyle(fontSize: 25),
         ),
         centerTitle: true,
       ),
       backgroundColor: Colors.grey.shade200,
       body: SingleChildScrollView(
-        child: Container(
-          // color: Colors.grey.shade200,
-          child: Column(
-            children: [
-              Container(
-                margin: EdgeInsets.all(8.0),
-                padding: EdgeInsets.all(8.0),
-                color: Colors.white,
-                child: busDetailsSection(),
-              ),
-              Container(
-                margin: EdgeInsets.all(8.0),
-                padding: EdgeInsets.all(8.0),
-                color: Colors.white,
-                child: passengerSection(),
-              ),
-              Container(
-                margin: EdgeInsets.all(8.0),
-                padding: EdgeInsets.all(8.0),
-                color: Colors.white,
-                child: modeOfPaymentWig(),
-              ),
-              Container(
-                margin: EdgeInsets.all(8.0),
-                padding: EdgeInsets.all(8.0),
-                color: Colors.white,
-                child: passangerMobileNumberWig(),
-              ),
-            ],
-          ),
+        child: Column(
+          children: [
+            scafoldBodyShorter(busDetailsSection()),
+            scafoldBodyShorter(passengerSection()),
+            scafoldBodyShorter(modeOfPaymentWig()),
+            scafoldBodyShorter(passangerMobileNumberWig()),
+          ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
@@ -490,24 +453,27 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
     );
   }
 
+  ///Scafold body element shortener
+  Widget scafoldBodyShorter(Widget child) {
+    return Container(
+      margin: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.all(8.0),
+      color: Colors.white,
+      child: child,
+    );
+  }
+
+  ///latest available seats in this bus
   getCurrentAvlSeats() {
     return ApiBackend.getCurrentAvlSeats(widget.searchResponseModel);
   }
 
-  // void addPassengerAction() {}
-
+  ///AddPassanger button OnPress Mehtod
   void addPassengerAction() {
     if (addPassengerList.length >=
         min(5, int.parse(widget.searchResponseModel.availableSeats))) {
       //cannot add morethan 5 passenger at atime sorry;
-      Fluttertoast.showToast(
-          msg: "cannot add more than 10 passenger at a time",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.grey,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      MyLib.myToast("cannot add more than 10 passenger at a time");
       return;
     }
     showDialog(
@@ -526,7 +492,6 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
                     TextFormField(
                       controller: nameController,
                       decoration: const InputDecoration(hintText: 'Name'),
-                      // keyboardType: keyboard,
                       textCapitalization: TextCapitalization.words,
                     ),
                     TextFormField(
@@ -587,14 +552,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             TextButton(
               onPressed: () {
                 if (nameController.text.isEmpty || ageController.text.isEmpty) {
-                  Fluttertoast.showToast(
-                      msg: "Please Fill Above Fields Properly",
-                      toastLength: Toast.LENGTH_SHORT,
-                      gravity: ToastGravity.BOTTOM,
-                      timeInSecForIosWeb: 1,
-                      backgroundColor: Colors.grey,
-                      textColor: Colors.white,
-                      fontSize: 16.0);
+                  MyLib.myToast("Please Fill Above Fields Properly");
                   return;
                 }
                 PassangerDetail p = PassangerDetail(nameController.text,
@@ -615,15 +573,13 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
   }
 
   void reviewDetailButtonAction() {
-    Navigator.push(
+    MyLib.myNewPage(
       context,
-      MaterialPageRoute(
-        builder: (context) => ReviewJourneyPage(
-          searchResponseModel: widget.searchResponseModel,
-          ftd: widget.ftd,
-          passengerList: addPassengerList,
-          modeOfPayment: modeOfPayment,
-        ),
+      ReviewJourneyPage(
+        searchResponseModel: widget.searchResponseModel,
+        ftd: widget.ftd,
+        passengerList: addPassengerList,
+        modeOfPayment: modeOfPayment,
       ),
     );
   }
