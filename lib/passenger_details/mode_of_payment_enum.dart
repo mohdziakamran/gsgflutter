@@ -1,0 +1,1 @@
+enum ModeOfPayment { IB, CARD }
