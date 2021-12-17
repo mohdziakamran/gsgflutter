@@ -9,6 +9,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
 import 'package:gsgflutter/backend/search_response_model.dart';
+import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:gsgflutter/passenger_details/gender.dart';
 import 'package:gsgflutter/passenger_details/mode_of_payment_enum.dart';
 import 'package:gsgflutter/passenger_details/passenger_detain_model.dart';
@@ -31,7 +32,7 @@ class ReviewJourneyPage extends StatefulWidget {
 }
 
 class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
-  //Busdetails Section
+  ///Busdetails Section
   Widget busDetailsSection() {
     double pdn = 5;
     return Column(
@@ -39,12 +40,10 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
         Container(
           alignment: Alignment.centerLeft,
           padding: EdgeInsets.all(pdn),
-          child: Flexible(
-            child: Text(
-              widget.searchResponseModel.agencyName,
-              style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-              overflow: TextOverflow.ellipsis,
-            ),
+          child: Text(
+            widget.searchResponseModel.agencyName,
+            style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Row(
@@ -54,21 +53,14 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
               Icons.directions_bus,
               color: Colors.black,
             ),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(pdn),
-                    child: Flexible(
-                      child: Text(
-                        "${widget.searchResponseModel.busName} (${widget.searchResponseModel.busNumber})",
-                        style: TextStyle(fontSize: 20, color: Colors.grey[850]),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ],
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(pdn),
+                child: Text(
+                  "${widget.searchResponseModel.busName} (${widget.searchResponseModel.busNumber})",
+                  style: TextStyle(fontSize: 20, color: Colors.grey[850]),
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             )
           ],
@@ -112,11 +104,13 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                               padding: EdgeInsets.all(5),
                               child: Icon(Icons.my_location),
                             ),
-                            Text(
-                              widget.searchResponseModel.source,
-                              style: TextStyle(
-                                  fontSize: 18, color: Colors.grey[700]),
-                              overflow: TextOverflow.ellipsis,
+                            Expanded(
+                              child: Text(
+                                widget.searchResponseModel.source,
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.grey[700]),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ],
                         )),
@@ -265,12 +259,11 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                 TableRow(
                   children: [
                     const Icon(Icons.person),
-                    Flexible(
-                        child: Text(
+                    Text(
                       widget.passengerList[index].name,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.bold),
-                    )),
+                    ),
                     Text(
                       "${widget.passengerList[index].age}",
                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -396,46 +389,6 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                 fontSize: 23,
               ),
             ),
-            // Table(
-            //   columnWidths: const {
-            //     0: FractionColumnWidth(.45),
-            //     1: FractionColumnWidth(.1),
-            //     2: FractionColumnWidth(.45),
-            //   },
-            //   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            //   children: [
-            //     TableRow(
-            //       children: [
-            //         Padding(
-            //           padding: const EdgeInsets.all(2),
-            //           child: Text(
-            //             widget.ftd.from,
-            //             style: TextStyle(
-            //               fontSize: 15,
-            //               color: Colors.grey.shade50,
-            //               overflow: TextOverflow.ellipsis,
-            //             ),
-            //           ),
-            //         ),
-            //         const Icon(
-            //           Icons.linear_scale_rounded,
-            //           size: 25,
-            //         ),
-            //         Padding(
-            //           padding: const EdgeInsets.all(2),
-            //           child: Text(
-            //             widget.ftd.to,
-            //             style: TextStyle(
-            //               fontSize: 15,
-            //               color: Colors.grey.shade50,
-            //               overflow: TextOverflow.ellipsis,
-            //             ),
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ],
-            // ),
           ],
         ),
         centerTitle: true,
@@ -521,26 +474,15 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
             TextButton(
               child: const Text('Confirm'),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Text("Not Implemented yet!!!"),
-                  ),
-                );
+                Navigator.pop(context, 'Ok');
+                MyLib.myNewPage(context, const Text("Not Implemented yet!!!"));
               },
             ),
           ],
         ),
       );
     } else {
-      Fluttertoast.showToast(
-          msg: "Please select the Check box first",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 1,
-          backgroundColor: Colors.grey,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      MyLib.myToast("Please select the Check box first");
     }
   }
 }

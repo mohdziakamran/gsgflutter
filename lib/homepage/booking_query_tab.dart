@@ -6,6 +6,7 @@ import 'package:gsgflutter/booking_query_result_page/booking_query_result.dart';
 import 'package:gsgflutter/homepage/date_picker_wig.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
 import 'package:gsgflutter/homepage/wig_input.dart';
+import 'package:gsgflutter/mylib/my_lib.dart';
 
 class BookingQueryTab extends StatefulWidget {
   const BookingQueryTab({Key? key}) : super(key: key);
@@ -36,24 +37,16 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
       SearchRequestModel tmp =
           SearchRequestModel(source, destination, datePicked);
       if (source.isEmpty || destination.isEmpty) {
-        Fluttertoast.showToast(
-            msg: "Please Fill Above Fields Properly",
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.grey,
-            textColor: Colors.white,
-            fontSize: 16.0);
+        MyLib.myToast("Please Fill Above Fields Properly");
         return;
       }
-      Navigator.push(
+      MyLib.myNewPage(
           context,
-          MaterialPageRoute(
-              builder: (context) => BookingQueryResultPage(
-                    ftd: tmp,
-                    originTAController: sourceInputController,
-                    destTAController: destInputController,
-                  )));
+          BookingQueryResultPage(
+            ftd: tmp,
+            originTAController: sourceInputController,
+            destTAController: destInputController,
+          ));
     }
 
     /**
@@ -66,7 +59,6 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
           primary: Colors.green, // background
           onPrimary: Colors.white, // foreground
         ),
-        //TODO add on press funtion
         onPressed: () {
           searchButtonAction(
             sourceInputController.text,
@@ -97,7 +89,6 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
     );
 
     return SingleChildScrollView(
-      // physics: const ClampingScrollPhysics(parent: NeverScrollableScrollPhysics()),
       child: Container(
         margin: const EdgeInsets.all(10.0),
         child: Column(
@@ -106,7 +97,6 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
             destinationInputWidget,
             datePickerWig,
             searchButton,
-            //TODO: delete this line
             const Text("~this is end~")
           ],
         ),

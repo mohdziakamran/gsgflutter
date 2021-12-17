@@ -32,43 +32,38 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
     double pdn = 2;
     return Column(
       children: [
+        ///Agency Name
         Container(
           alignment: Alignment.centerLeft,
           padding: EdgeInsets.all(pdn),
-          child: Flexible(
-            child: Text(
-              each.agencyName,
-              style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-              overflow: TextOverflow.ellipsis,
-            ),
+          child: Text(
+            each.agencyName,
+            style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
+
+        ///bus details
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Icon(
               Icons.directions_bus,
               color: Colors.black,
             ),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.all(pdn),
-                    child: Flexible(
-                      child: Text(
-                        "${each.busNumber} - ${each.busName}",
-                        style: TextStyle(fontSize: 20, color: Colors.grey[850]),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                ],
+            Padding(
+              padding: EdgeInsets.all(pdn),
+              child: Text(
+                "${each.busNumber} - ${each.busName}",
+                style: TextStyle(fontSize: 20, color: Colors.grey[850]),
+                overflow: TextOverflow.ellipsis,
               ),
-            )
+            ),
           ],
         ),
+
+        ///departure arrival schedules time
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -88,6 +83,8 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
             ),
           ],
         ),
+
+        ///Departure and Arrival Stops
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -113,9 +110,12 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
             ),
           ],
         ),
+
+        ///->
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
+            ///Seats Avl
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.ideographic,
@@ -136,6 +136,8 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
                 ),
               ],
             ),
+
+            ///Fare for each
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.ideographic,
@@ -163,7 +165,7 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
   }
 
   /// Function for ontap any result
-  /// Forward to new page containg details about tickets and
+  /// It Forward to new page containg details about tickets and
   void onTapAnyResultAction(SearchResponseModel srpm) {
     Navigator.push(
       context,
@@ -176,9 +178,6 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
     );
   }
 
-  // Widget originInWig = WigInDif(typeAheadController: widget.originTAController);
-  // Widget destInWig = WigInDif(typeAheadController: widget.destTAController);
-
   @override
   Widget build(BuildContext context) {
     var responseList = ApiBackend.BookingQuerySearchCall(widget.ftd);
@@ -188,14 +187,21 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
         centerTitle: true,
       ),
       body: (responseList.isEmpty)
-          ? const Text("No Result Found")
+          ? const Center(
+              child: Text(
+                "No Result Found",
+                style: TextStyle(
+                  fontSize: 25,
+                  color: Colors.grey,
+                ),
+              ),
+            )
           : ListView.separated(
               padding: const EdgeInsets.all(8),
               itemCount: responseList.length,
               itemBuilder: (BuildContext context, int index) {
                 var temp = responseList[index];
                 return TextButton(
-                  //on press function
                   onPressed: () {
                     onTapAnyResultAction(temp);
                   },
@@ -205,28 +211,6 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
               separatorBuilder: (BuildContext context, int index) =>
                   const Divider(),
             ),
-      // : Column(
-      //     children: [
-      //       Expanded(
-      //         child: ListView.separated(
-      //           padding: const EdgeInsets.all(8),
-      //           itemCount: responseList.length,
-      //           itemBuilder: (BuildContext context, int index) {
-      //             var temp = responseList[index];
-      //             return TextButton(
-      //               //on press function
-      //               onPressed: () {
-      //                 onTapAnyResultAction(temp);
-      //               },
-      //               child: eachResultWig(temp),
-      //             );
-      //           },
-      //           separatorBuilder: (BuildContext context, int index) =>
-      //               const Divider(),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
     );
   }
 }
