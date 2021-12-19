@@ -1,12 +1,18 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/backend/search_response_model.dart';
+import 'package:gsgflutter/booking_query_result_page/bqr_all_type.dart';
 import 'package:gsgflutter/config/global_properties.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
 import 'package:date_time_format/date_time_format.dart';
 import 'package:gsgflutter/homepage/wig_in_dif.dart';
+import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:gsgflutter/passenger_details/passenger_details_page.dart';
+
+import 'bqr_agency_type.dart';
 
 class BookingQueryResultPage extends StatefulWidget {
   SearchRequestModel ftd;
@@ -24,193 +30,172 @@ class BookingQueryResultPage extends StatefulWidget {
 }
 
 class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
-  /*widget for each result*/
-  Widget eachResultWig(SearchResponseModel each) {
-    Color mycol = ((int.parse(each.availableSeats) > 0)
-        ? Colors.green.shade800
-        : Colors.red.shade800);
-    double pdn = 2;
-    return Column(
+  bool isSwitched = false;
+  var switchTextValue = 'Show All';
+
+  void toggleSwitch(bool value) {
+    if (isSwitched == false) {
+      setState(() {
+        isSwitched = true;
+        switchTextValue = 'Hide All';
+      });
+    } else {
+      setState(() {
+        isSwitched = false;
+        switchTextValue = 'Show All';
+      });
+    }
+  }
+
+  ///
+  String dropdownValue = 'Fare: Low to High';
+  Widget dropDownFilterList(List<SearchResponseModel> responseList) {
+    return Row(
       children: [
-        ///Agency Name
-        Container(
-          alignment: Alignment.centerLeft,
-          padding: EdgeInsets.all(pdn),
+        const Padding(
+          padding: EdgeInsets.all(8.0),
           child: Text(
-            each.agencyName,
-            style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-            overflow: TextOverflow.ellipsis,
+            "Sort by",
+            style: TextStyle(fontSize: 18),
           ),
         ),
-
-        ///bus details
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.directions_bus,
-              color: Colors.black,
+        Expanded(
+            child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: DropdownButton<String>(
+            value: dropdownValue,
+            icon: const Icon(Icons.keyboard_arrow_down_sharp),
+            elevation: 16,
+            style: TextStyle(color: Colors.grey.shade700, fontSize: 18),
+            underline: Container(
+              height: 2,
+              color: Colors.green,
             ),
-            Padding(
-              padding: EdgeInsets.all(pdn),
-              child: Text(
-                "${each.busNumber} - ${each.busName}",
-                style: TextStyle(fontSize: 20, color: Colors.grey[850]),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-
-        ///departure arrival schedules time
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(pdn),
-              child: Text(
-                "${each.departureTime} ${widget.ftd.datePicked.format('M j')}",
-                style: TextStyle(fontSize: 22, color: Colors.grey[800]),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(pdn),
-              child: Text(
-                "${each.arrivalTime} ${widget.ftd.datePicked.format('M j')}",
-                style: TextStyle(fontSize: 22, color: Colors.grey[800]),
-              ),
-            ),
-          ],
-        ),
-
-        ///Departure and Arrival Stops
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(
-              child: Padding(
-                padding: EdgeInsets.all(pdn),
-                child: Text(
-                  each.source,
-                  style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-            Flexible(
-              child: Padding(
-                padding: EdgeInsets.all(pdn),
-                child: Text(
-                  each.destination,
-                  style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ),
-          ],
-        ),
-
-        ///->
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            ///Seats Avl
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.ideographic,
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(pdn),
-                  child: Text(
-                    'Seats Avl: ',
-                    style: TextStyle(fontSize: 15, color: Colors.grey[700]),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(pdn),
-                  child: Text(
-                    each.availableSeats,
-                    style: TextStyle(fontSize: 25, color: mycol),
-                  ),
-                ),
-              ],
-            ),
-
-            ///Fare for each
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.baseline,
-              textBaseline: TextBaseline.ideographic,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: Text(
-                    'Rs: ',
-                    style: TextStyle(fontSize: 20, color: Colors.green[800]),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: Text(
-                    each.fare,
-                    style: TextStyle(fontSize: 25, color: Colors.green[800]),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+            isExpanded: true,
+            onChanged: (String? newValue) {
+              setState(
+                () {
+                  dropdownValue = newValue!;
+                  if (newValue == 'Fare: Low to High') {
+                    responseList.sort((a, b) =>
+                        int.parse(a.fare).compareTo(int.parse(b.fare)));
+                  } else if (newValue == 'Avl Seats: High to Low') {
+                    responseList.sort((a, b) => int.parse(a.availableSeats)
+                        .compareTo(int.parse(b.availableSeats)));
+                  } else if (newValue == 'Duration: Low to High') {
+                    ///TODO-> add absed on duration
+                    // responseList.sort((a, b) => int.parse(a.availableSeats)
+                    //     .compareTo(int.parse(b.availableSeats)));
+                  }
+                },
+              );
+            },
+            items: <String>[
+              'Fare: Low to High',
+              'Avl Seats: High to Low',
+              'Duration: Low to High',
+            ].map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+        ))
       ],
     );
   }
 
-  /// Function for ontap any result
-  /// It Forward to new page containg details about tickets and
-  void onTapAnyResultAction(SearchResponseModel srpm) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => PassengerDetailsPage(
-          ftd: widget.ftd,
-          searchResponseModel: srpm,
+  /// Body Widget sepertator
+  Widget bodyWig(List<SearchResponseModel> responseList,
+      Map<String, List<SearchResponseModel>> map) {
+    if (responseList.isEmpty) {
+      return const Center(
+        child: Text(
+          "No Result Found",
+          style: TextStyle(
+            fontSize: 25,
+            color: Colors.grey,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Column(
+        children: [
+          ///Dropdown sory by
+          (isSwitched) ? dropDownFilterList(responseList) : const Text(""),
+
+          ///Children Widgets for list lown
+          Expanded(
+            child: (isSwitched)
+
+                ///if switch is onn -> All list with ffilter criteria
+                ? BqrAllType(
+                    ftd: widget.ftd,
+                    responseList: responseList,
+                  )
+
+                /// if switch is off -> all list under agency dropdown
+                : BqrAgencyType(
+                    responseListmap: map,
+                    ftd: widget.ftd,
+                  ),
+          )
+        ],
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    ///response list from backend call
     var responseList = ApiBackend.BookingQuerySearchCall(widget.ftd);
+
+    ///Convert Response list to map
+    Map<String, List<SearchResponseModel>> map = HashMap();
+    for (SearchResponseModel r in responseList) {
+      String agency = r.agencyName;
+      map.putIfAbsent(agency, () => []);
+      map[agency]?.add(r);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Search Results", style: TextStyle(fontSize: 25)),
         centerTitle: true,
-      ),
-      body: (responseList.isEmpty)
-          ? const Center(
-              child: Text(
-                "No Result Found",
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.grey,
-                ),
-              ),
-            )
-          : ListView.separated(
-              padding: const EdgeInsets.all(8),
-              itemCount: responseList.length,
-              itemBuilder: (BuildContext context, int index) {
-                var temp = responseList[index];
-                return TextButton(
-                  onPressed: () {
-                    onTapAnyResultAction(temp);
-                  },
-                  child: eachResultWig(temp),
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(),
+        toolbarHeight: 70, // default is 56
+
+        ///toggle button
+        actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Transform.scale(
+                    scale: 1.2,
+                    child: Column(
+                      children: [
+                        Switch(
+                          onChanged: toggleSwitch,
+                          value: isSwitched,
+                          activeColor: Colors.white,
+                          activeTrackColor: Colors.grey.shade300,
+                          inactiveThumbColor: Colors.grey.shade400,
+                          inactiveTrackColor: Colors.grey.shade300,
+                        ),
+                        Text(
+                          switchTextValue,
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
+                    )),
+              ],
             ),
+          )
+        ],
+      ),
+      body: bodyWig(responseList, map),
     );
   }
 }
