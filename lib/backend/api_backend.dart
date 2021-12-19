@@ -69,13 +69,14 @@ class ApiBackend {
 
     List<SearchResponseModel> ls = [];
     for (int i = 0; i < 15; i++) {
+      int rand = i % 4;
       ls.add(SearchResponseModel(
           ftd.from,
           ftd.to,
           DateUtils.dateOnly(DateTime.now()).toString(),
           "Bus-No.1234",
           "BUS NAME",
-          "Agency Name",
+          "Agency Name$rand",
           "10",
           DateFormat.Hm().format(DateTime.now()).toString(),
           DateFormat.Hm().format(DateTime.now()).toString(),
