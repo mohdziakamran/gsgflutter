@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gsgflutter/login_signup_reset/screens/login.dart';
 
 import 'homepage/my_home_page.dart';
 
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
-      home: const MyHomePage(),
+      // home: const MyHomePage(),
+      home: LogInScreen(),
     );
   }
 }
