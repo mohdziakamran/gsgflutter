@@ -11,6 +11,7 @@ import 'package:date_time_format/date_time_format.dart';
 import 'package:gsgflutter/homepage/wig_in_dif.dart';
 import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:gsgflutter/passenger_details/passenger_details_page.dart';
+import 'package:gsgflutter/theme.dart';
 
 import 'bqr_agency_type.dart';
 
@@ -69,7 +70,8 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
             style: TextStyle(color: Colors.grey.shade700, fontSize: 18),
             underline: Container(
               height: 2,
-              color: Colors.green,
+              // color: Colors.green,
+              color: myTertiaryColor,
             ),
             isExpanded: true,
             onChanged: (String? newValue) {

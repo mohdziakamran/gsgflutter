@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gsgflutter/theme.dart';
 import 'package:intl/intl.dart';
 
 class DatePickerWig extends StatefulWidget {
@@ -53,8 +54,9 @@ class _DatePickerWigState extends State<DatePickerWig> {
         padding: const EdgeInsets.only(top: 8.0),
         child: TextButton(
           style: ElevatedButton.styleFrom(
-            primary: Colors.green[100], // background
-            onPrimary: Colors.green[900], // foreground
+            // primary: Colors.green[100], // background
+            primary: mySecondaryColor, // background
+            onPrimary: myTertiaryColor, // foreground
           ),
           onPressed: _pickDateDialog,
           child: Column(

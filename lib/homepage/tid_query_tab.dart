@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gsgflutter/theme.dart';
 
 class TidQueryTab extends StatefulWidget {
   const TidQueryTab({Key? key}) : super(key: key);
@@ -16,7 +17,8 @@ class _TidQueryTabState extends State<TidQueryTab> {
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          primary: Colors.green, // background
+          // primary: Colors.green, // background
+          primary: myPrimaryColor, // background
           onPrimary: Colors.white, // foreground
         ),
         //TODO add on press funtion
