@@ -1,12 +1,10 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gsgflutter/booking_query_result_page/booking_query_result.dart';
 import 'package:gsgflutter/homepage/date_picker_wig.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
 import 'package:gsgflutter/homepage/wig_input.dart';
 import 'package:gsgflutter/mylib/my_lib.dart';
+import 'package:gsgflutter/theme.dart';
 
 class BookingQueryTab extends StatefulWidget {
   const BookingQueryTab({Key? key}) : super(key: key);
@@ -56,7 +54,7 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          primary: Colors.green, // background
+          primary: myPrimaryColor, // background
           onPrimary: Colors.white, // foreground
         ),
         onPressed: () {
@@ -97,7 +95,7 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
             destinationInputWidget,
             datePickerWig,
             searchButton,
-            const Text("~this is end~")
+            // const Text("~this is end~")
           ],
         ),
       ),

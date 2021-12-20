@@ -16,11 +16,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        // primarySwatch: generateMaterialColorFromColor(kPrimaryColor),
-        primarySwatch: Colors.green,
+        primarySwatch: generateMaterialColorFromColor(Colors.teal.shade900),
       ),
-      // home: const MyHomePage(),
-      home: LogInScreen(),
+      home: const MyHomePage(),
+      // home: LogInScreen(),
     );
   }
 }
