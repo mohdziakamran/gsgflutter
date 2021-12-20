@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter/rendering.dart';
-import 'package:gsgflutter/login_signup_reset/screens/login.dart';
 import 'package:gsgflutter/theme.dart';
-
-
 import 'homepage/my_home_page.dart';
 
 void main() {
