@@ -77,31 +77,65 @@ class _BqrAllTypeState extends State<BqrAllType> {
         ),
 
         ///Departure and Arrival Stops
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Table(
+          columnWidths: const {
+            0: FractionColumnWidth(0.45),
+            1: FractionColumnWidth(0.1),
+            2: FractionColumnWidth(0.45),
+          },
           children: [
-            Flexible(
-              child: Padding(
+            TableRow(children: [
+              Padding(
                 padding: EdgeInsets.all(pdn),
                 child: Text(
                   each.source,
                   style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-            Flexible(
-              child: Padding(
+              const Icon(
+                Icons.arrow_right_alt_outlined,
+                size: 30,
+                color: Colors.black,
+              ),
+              Padding(
                 padding: EdgeInsets.all(pdn),
                 child: Text(
                   each.destination,
-                  style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey[700],
+                  ),
                 ),
               ),
-            ),
+            ])
           ],
         ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //     Flexible(
+        //       child: Padding(
+        //         padding: EdgeInsets.all(pdn),
+        //         child: Text(
+        //           each.source,
+        //           style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+        //           overflow: TextOverflow.ellipsis,
+        //         ),
+        //       ),
+        //     ),
+        //     Flexible(
+        //       child: Padding(
+        //         padding: EdgeInsets.all(pdn),
+        //         child: Text(
+        //           each.destination,
+        //           style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+        //           overflow: TextOverflow.ellipsis,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
 
         ///->
         Row(

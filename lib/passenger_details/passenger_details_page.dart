@@ -94,32 +94,39 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
         ),
 
         ///Departure Arrival Stops
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Table(
+          columnWidths: const {
+            0: FractionColumnWidth(0.45),
+            1: FractionColumnWidth(0.1),
+            2: FractionColumnWidth(0.45),
+          },
           children: [
-            ///Depature Stop
-            Flexible(
-              child: Padding(
+            TableRow(children: [
+              Padding(
                 padding: EdgeInsets.all(pdn),
                 child: Text(
                   widget.searchResponseModel.source,
                   style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-                  overflow: TextOverflow.ellipsis,
+                  // overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
-
-            ///Arrival Stop
-            Flexible(
-              child: Padding(
+              const Icon(
+                Icons.arrow_right_alt_outlined,
+                size: 30,
+              ),
+              Padding(
                 padding: EdgeInsets.all(pdn),
                 child: Text(
                   widget.searchResponseModel.destination,
-                  style: TextStyle(fontSize: 18, color: Colors.grey[700]),
-                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey[700],
+                  ),
+                  // overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
+            ])
           ],
         ),
 
