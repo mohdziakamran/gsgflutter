@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:gsgflutter/backend/api_backend.dart';
+import 'package:gsgflutter/theme.dart';
 
 class WigInput extends StatefulWidget {
   TextEditingController typeAheadController;
@@ -22,9 +23,10 @@ class _WigFromState extends State<WigInput> {
         textFieldConfiguration: TextFieldConfiguration(
           decoration: InputDecoration(
             labelText: widget.lable,
-            icon: const Icon(
+            icon: Icon(
               Icons.pin_drop,
-              color: Colors.green,
+              // color: Colors.green,
+              color: myTertiaryColor,
               size: 30,
             ),
           ),
