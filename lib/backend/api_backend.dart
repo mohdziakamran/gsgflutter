@@ -89,4 +89,10 @@ class ApiBackend {
   static int getCurrentAvlSeats(SearchResponseModel sm) {
     return 54;
   }
+
+  static void sendLoginRequest() {}
+
+  static void creatAccountRequest() {}
+
+  static void forgotPasswordRequest() {}
 }

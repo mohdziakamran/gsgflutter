@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gsgflutter/login_signup_reset/screens/login.dart';
+import 'package:gsgflutter/theme.dart';
 
 import 'homepage/my_home_page.dart';
 
@@ -14,9 +16,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
+        // primarySwatch: generateMaterialColorFromColor(kPrimaryColor),
         primarySwatch: Colors.green,
       ),
-      home: const MyHomePage(),
+      // home: const MyHomePage(),
+      home: LogInScreen(),
     );
   }
 }
