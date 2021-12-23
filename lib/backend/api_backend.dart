@@ -1,98 +1,186 @@
-import 'dart:async';
-import 'dart:math';
+import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:date_time_format/src/date_time_extension_methods.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
 import 'package:gsgflutter/backend/search_response_model.dart';
-import 'package:intl/intl.dart';
+import 'package:gsgflutter/config/myconfig.dart';
+import 'package:gsgflutter/model/signup_request_model.dart';
+import 'package:gsgflutter/model/tid_response_model.dart';
+import 'package:gsgflutter/model/user.dart';
+import 'package:gsgflutter/mylib/my_lib.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiBackend {
-  static final List<String> states = [
-    'ANDAMAN AND NICOBAR ISLANDS',
-    'ANDHRA PRADESH',
-    'ARUNACHAL PRADESH',
-    'ASSAM',
-    'BIHAR',
-    'CHATTISGARH',
-    'CHANDIGARH',
-    'DAMAN AND DIU',
-    'DELHI',
-    'DADRA AND NAGAR HAVELI',
-    'GOA',
-    'GUJARAT',
-    'HIMACHAL PRADESH',
-    'HARYANA',
-    'JAMMU AND KASHMIR',
-    'JHARKHAND',
-    'KERALA',
-    'KARNATAKA',
-    'LAKSHADWEEP',
-    'MEGHALAYA',
-    'MAHARASHTRA',
-    'MANIPUR',
-    'MADHYA PRADESH',
-    'MIZORAM',
-    'NAGALAND',
-    'ORISSA',
-    'PUNJAB',
-    'PONDICHERRY',
-    'RAJASTHAN',
-    'SIKKIM',
-    'TAMIL NADU',
-    'TRIPURA',
-    'UTTARAKHAND',
-    'UTTAR PRADESH',
-    'WEST BENGAL',
-    'TELANGANA',
-    'LADAKH'
-  ];
-  // ignore: slash_for_doc_comments
-  /**
-   * here we are supposed to make API GET calls to get the city lists
-   */
-  static List<String> getSuggestions(String query) {
-    List<String> matches = [];
-    matches.addAll(states);
-    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
-    return matches;
+  ///* here we are supposed to make API GET calls to get the city lists
+  static getSuggestionsApiCall() async {
+    List<String> resList = [];
+    try {
+      var uri = Uri.parse(ALLBUSSTOPURL);
+      var response = await http.get(uri);
+      resList = List<String>.from(jsonDecode(response.body));
+    } catch (e) {
+      print(e);
+    }
+    return resList;
   }
 
-  // ignore: slash_for_doc_comments
-  /** 
-   * here we are supposed to make API calls to get the Search query results
-   */
-  static List<SearchResponseModel> BookingQuerySearchCall(
-      SearchRequestModel ftd) {
-    /**
-         * Do the HTTP POST call
-         */
-
+  /// * here we are supposed to make API calls to get the Search query results
+  static Future<List<SearchResponseModel>> BookingQuerySearchCall(
+      SearchRequestModel ftd) async {
     List<SearchResponseModel> ls = [];
-    for (int i = 0; i < 15; i++) {
-      int rand = i % 4;
-      ls.add(SearchResponseModel(
-          ftd.from,
-          ftd.to,
-          DateUtils.dateOnly(DateTime.now()).toString(),
-          "Bus-No.1234",
-          "BUS NAME",
-          "Agency Name$rand",
-          "10",
-          DateFormat.Hm().format(DateTime.now()).toString(),
-          DateFormat.Hm().format(DateTime.now()).toString(),
-          "100"));
+    try {
+      var uri = Uri.parse(BOOKINGQUERYURL);
+      var response = await http.post(
+        uri,
+        body: ftd.toJson(),
+      );
+      // print('******$response'); //////////////////////////
+      // print(response.body); ////////////////////////////////////
+      var l = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+      for (var each in l) {
+        ls.add(SearchResponseModel.fromJson(each));
+      }
+    } catch (e) {
+      print(e);
     }
     return ls;
   }
 
   /// API call for the current serts Avl
-  static int getCurrentAvlSeats(SearchResponseModel sm) {
-    return 54;
+  static Future<int> getCurrentAvlSeats(SearchResponseModel sm) async {
+    int result = 0;
+    try {
+      var uri = Uri.parse(CURRSEATSAVLURL);
+      var response = await http.post(
+        uri,
+        body: {
+          'busNumber': sm.busNumber,
+          'date': sm.dateOfJourney.format('Y-m-j')
+        },
+      );
+      result = int.parse(jsonDecode(response.body)['AvlSeats'] as String);
+      // print('####$result');
+    } catch (e) {
+      print(e);
+    }
+    return result;
   }
 
-  static void sendLoginRequest() {}
+  ///===========================================================
+  ///                   ***Pref Methods start***
+  ///
 
-  static void creatAccountRequest() {}
+  ///save user to shared prefrence
+  ///@param json decode map
+  static saveUserToSharedPref(Map<String, dynamic> jsonDecodedResponse) async {
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
+    String user = jsonEncode(User.fromJson(jsonDecodedResponse));
+    sharedUser.setString('user', user);
+  }
 
-  static void forgotPasswordRequest() {}
+  ///get user from shared prefrence
+  ///@param [json decode map]
+  static Future<User> getUserFromSharedPref() async {
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
+    Map<String, dynamic> userMap = jsonDecode(sharedUser.getString('user')!);
+    User user = User.fromJson(userMap);
+    return user;
+  }
+
+  ///check is Logedin from shared prefrence
+  ///@param
+  static Future<bool> isLogedin() async {
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
+    return sharedUser.containsKey('user');
+  }
+
+  ///check is Logedin from shared prefrence
+  ///@param
+  static Future<bool> clearUserFromSharedPref() async {
+    SharedPreferences sharedUser = await SharedPreferences.getInstance();
+    return sharedUser.remove('user');
+  }
+
+  ///                   ***end***
+  ///--------------------------------------------------
+  ///
+
+  ///Send Api Post request to Login user
+  static Future<void> sendLoginRequest(String email, String password) async {
+    var uri = Uri.parse(LOGINURL);
+    var response = await http.post(
+      uri,
+      body: {
+        'email': email,
+        'password': password,
+      },
+    );
+    if (response.statusCode == 200) {
+      /**save the user model to shared prefrences */
+      ApiBackend.saveUserToSharedPref(jsonDecode(response.body));
+    } else {
+      String message =
+          'statuscode: ${response.statusCode} \nResponse-body: ${response.body}';
+      /**consoele output the error */
+      print(message);
+      throw Exception(message);
+    }
+  }
+
+  ///API call for signup http request post
+  static Future<void> creatAccountRequest(SignUpRequestModel req) async {
+    var uri = Uri.parse(SIGNUPURL);
+    var response = await http.post(
+      uri,
+      body: req.toJson(),
+    );
+    if (response.statusCode == 200) {
+      /**Do nothing */
+    } else {
+      String message =
+          'statuscode: ${response.statusCode} \nResponse-body: ${response.body}';
+      /**consoele output the error */
+      print(message);
+      throw Exception(message);
+    }
+  }
+
+  ///Api call for Reset Password Request http post request
+  static Future<void> forgotPasswordRequest(String email) async {
+    var uri = Uri.parse(RESETPASSURL);
+    var response = await http.post(
+      uri,
+      body: {'email': email},
+    );
+    if (response.statusCode == 200) {
+      /**Do nothing */
+    } else {
+      String message =
+          'statuscode: ${response.statusCode} \nResponse-body: ${response.body}';
+      /**consoele output the error */
+      print(message);
+      throw Exception(message);
+    }
+  }
+
+  static Future<TidQueryResponseModel> sendTidQueryRequest(String tid) async {
+    var uri = Uri.parse(TIDQUERYURL);
+    var response = await http.post(
+      uri,
+      body: {'tid': tid},
+    );
+    if (response.statusCode == 200) {
+      /**Do creat response object and return */
+      TidQueryResponseModel responseModel =
+          TidQueryResponseModel.fromJson(json.decode(response.body));
+      return responseModel;
+    } else {
+      String message =
+          'statuscode: ${response.statusCode} \nResponse-body: ${response.body}';
+      /**consoele output the error */
+      print(message);
+      throw Exception(message);
+    }
+  }
 }

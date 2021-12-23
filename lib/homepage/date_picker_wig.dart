@@ -16,8 +16,9 @@ class _DatePickerWigState extends State<DatePickerWig> {
     showDatePicker(
             context: context,
             initialDate: DateTime.now(),
-            firstDate: DateTime(DateTime.now().day - 1),
-            lastDate: DateTime(DateTime.now().year + 1))
+            // firstDate: DateTime(DateTime.now().day - 1),
+            firstDate: DateTime.now(),
+            lastDate: DateTime.now().add(const Duration(days: 120)))
         .then((pickedDate) {
       if (pickedDate == null) {
         return;

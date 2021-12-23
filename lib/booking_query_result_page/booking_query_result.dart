@@ -1,29 +1,25 @@
 import 'dart:collection';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/backend/search_response_model.dart';
-import 'package:gsgflutter/booking_query_result_page/bqr_all_type.dart';
-import 'package:gsgflutter/config/global_properties.dart';
+import 'package:gsgflutter/booking_query_result_page/bqr_all_type_view.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
-import 'package:date_time_format/date_time_format.dart';
-import 'package:gsgflutter/homepage/wig_in_dif.dart';
-import 'package:gsgflutter/mylib/my_lib.dart';
-import 'package:gsgflutter/passenger_details/passenger_details_page.dart';
 import 'package:gsgflutter/theme.dart';
 
-import 'bqr_agency_type.dart';
+import 'bqr_agency_type_view.dart';
 
 class BookingQueryResultPage extends StatefulWidget {
   SearchRequestModel ftd;
   TextEditingController originTAController;
   TextEditingController destTAController;
+  List<SearchResponseModel> responseList;
   BookingQueryResultPage(
       {Key? key,
       required this.ftd,
       required this.originTAController,
-      required this.destTAController})
+      required this.destTAController,
+      required this.responseList})
       : super(key: key);
 
   @override
@@ -79,15 +75,18 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
                 () {
                   dropdownValue = newValue!;
                   if (newValue == 'Fare: Low to High') {
-                    responseList.sort((a, b) =>
-                        int.parse(a.fare).compareTo(int.parse(b.fare)));
+                    responseList.sort((a, b) => (a.fare).compareTo(b.fare));
                   } else if (newValue == 'Avl Seats: High to Low') {
-                    responseList.sort((a, b) => int.parse(a.availableSeats)
-                        .compareTo(int.parse(b.availableSeats)));
+                    responseList.sort((a, b) =>
+                        (a.availableSeats).compareTo(b.availableSeats));
                   } else if (newValue == 'Duration: Low to High') {
                     ///TODO-> add absed on duration
-                    // responseList.sort((a, b) => int.parse(a.availableSeats)
-                    //     .compareTo(int.parse(b.availableSeats)));
+                    responseList.sort((a, b) => (DateTimeRange(
+                            start: a.departure, end: a.arrival)
+                        .duration
+                        .compareTo(
+                            DateTimeRange(start: b.departure, end: b.arrival)
+                                .duration)));
                   }
                 },
               );
@@ -132,15 +131,11 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
             child: (isSwitched)
 
                 ///if switch is onn -> All list with ffilter criteria
-                ? BqrAllType(
-                    ftd: widget.ftd,
-                    responseList: responseList,
-                  )
+                ? BqrAllType(responseList: responseList, ftd: widget.ftd)
 
                 /// if switch is off -> all list under agency dropdown
                 : BqrAgencyType(
                     responseListmap: map,
-                    ftd: widget.ftd,
                   ),
           )
         ],
@@ -151,11 +146,10 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
   @override
   Widget build(BuildContext context) {
     ///response list from backend call
-    var responseList = ApiBackend.BookingQuerySearchCall(widget.ftd);
 
     ///Convert Response list to map
     Map<String, List<SearchResponseModel>> map = HashMap();
-    for (SearchResponseModel r in responseList) {
+    for (SearchResponseModel r in widget.responseList) {
       String agency = r.agencyName;
       map.putIfAbsent(agency, () => []);
       map[agency]?.add(r);
@@ -197,7 +191,7 @@ class _BookingQueryResultPageState extends State<BookingQueryResultPage> {
           )
         ],
       ),
-      body: bodyWig(responseList, map),
+      body: bodyWig(widget.responseList, map),
     );
   }
 }

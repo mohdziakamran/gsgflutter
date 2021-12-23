@@ -1,11 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/theme.dart';
+import 'package:http/http.dart' as http;
 
 class WigInput extends StatefulWidget {
   TextEditingController typeAheadController;
   String lable;
+  static List<String> states = [];
   WigInput({Key? key, required this.lable, required this.typeAheadController})
       : super(key: key);
 
@@ -14,6 +18,12 @@ class WigInput extends StatefulWidget {
 }
 
 class _WigFromState extends State<WigInput> {
+  @override
+  void initState() {
+    super.initState();
+    WigInput.states.clear();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -34,7 +44,16 @@ class _WigFromState extends State<WigInput> {
           style: const TextStyle(fontSize: 18),
         ),
         suggestionsCallback: (pattern) async {
-          return await ApiBackend.getSuggestions(pattern);
+          // return await ApiBackend.getSuggestions(pattern);
+          if (WigInput.states.isEmpty) {
+            WigInput.states =
+                await ApiBackend.getSuggestionsApiCall() as List<String>;
+          }
+          List<String> matches = [];
+          matches.addAll(WigInput.states);
+          matches.retainWhere(
+              (s) => s.toLowerCase().contains(pattern.toLowerCase()));
+          return matches;
         },
         transitionBuilder: (context, suggestionsBox, controller) {
           return suggestionsBox;

@@ -4,6 +4,7 @@ import 'package:gsgflutter/login_signup_reset/screens/reset_password.dart';
 import 'package:gsgflutter/login_signup_reset/screens/signup.dart';
 import 'package:gsgflutter/login_signup_reset/widgets/login_form.dart';
 import 'package:gsgflutter/login_signup_reset/widgets/primary_button.dart';
+import 'package:gsgflutter/model/user.dart';
 import 'package:gsgflutter/theme.dart';
 import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:validators/validators.dart';
@@ -114,29 +115,47 @@ class _LigInScreenState extends State<LogInScreen> {
     ));
   }
 
-  void loginAction() {
+  ///On Tap Login Button Action Method
+  ///1. self validate and snackbar
+  ///2. API call
+  ///3. sucess->pop / fail->snackbar(Invalid Credentials)
+  Future<void> loginAction() async {
     String email = emailController.text;
     String pass = passController.text;
 
     if (email.isEmpty || pass.isEmpty) {
       // MyLib.myToast("Fill above fields");
       MyLib.mySnackbar(context, "Fill above fields");
+      return;
     }
     if (!isEmail(email)) {
       MyLib.mySnackbar(context, "Invalid Email");
+      return;
     }
     if (isAlpha(pass) || isNumeric(pass) || pass.length < 8) {
       MyLib.mySnackbar(
           context, "Passwprd must be Alpha numeric.\nand atleast 8 char long.");
+      return;
     }
 
     ///-->
+    try {
+      MyLib.myWaitingWidget(context);
 
-    ///Send request to login api
-    ApiBackend.sendLoginRequest();
+      ///Send request to login api
+      await ApiBackend.sendLoginRequest(
+          emailController.text, passController.text);
+      Navigator.pop(context);
+    } catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, 'Invalid Credentials');
+      return;
+    }
 
     ///on sucessfull response
     ///take into the App review page
     Navigator.pop(context);
+    User user = await ApiBackend.getUserFromSharedPref();
+    MyLib.myToast("Welcome ${user.name}");
   }
 }

@@ -7,18 +7,18 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
 import 'package:gsgflutter/backend/search_response_model.dart';
-import 'package:gsgflutter/config/global_properties.dart';
+import 'package:gsgflutter/config/myconfig.dart';
+import 'package:gsgflutter/login_signup_reset/screens/login.dart';
 import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:gsgflutter/passenger_details/gender.dart';
 import 'package:gsgflutter/passenger_details/mode_of_payment_enum.dart';
-import 'package:gsgflutter/passenger_details/passenger_detain_model.dart';
+import 'package:gsgflutter/model/passenger.dart';
 import 'package:gsgflutter/review_journey_page/review_journey_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PassengerDetailsPage extends StatefulWidget {
-  PassengerDetailsPage(
-      {Key? key, required this.searchResponseModel, required this.ftd})
+  PassengerDetailsPage({Key? key, required this.searchResponseModel})
       : super(key: key);
-  SearchRequestModel ftd;
   SearchResponseModel searchResponseModel;
   @override
   _PassengerDetailsPageState createState() => _PassengerDetailsPageState();
@@ -71,7 +71,8 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                widget.searchResponseModel.departureTime,
+                // widget.searchResponseModel.departureTime,
+                widget.searchResponseModel.departure.format('H:i'),
                 style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[800],
@@ -83,7 +84,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                widget.searchResponseModel.arrivalTime,
+                widget.searchResponseModel.arrival.format('H:i'),
                 style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[800],
@@ -138,7 +139,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                widget.ftd.datePicked.format('l, M j'),
+                widget.searchResponseModel.dateOfJourney.format('l, M j'),
                 style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[700],
@@ -150,7 +151,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                widget.ftd.datePicked.format('l, M j'),
+                widget.searchResponseModel.dateOfJourney.format('l, M j'),
                 style: TextStyle(
                     fontSize: 18,
                     color: Colors.grey[700],
@@ -164,10 +165,25 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
+            TextButton(
+              onPressed: () async {
+                MyLib.myWaitingWidget(context);
+                int j = await ApiBackend.getCurrentAvlSeats(
+                    widget.searchResponseModel);
+                setState(() {
+                  widget.searchResponseModel.availableSeats = j;
+                });
+                Navigator.pop(context);
+              },
+              child: const Icon(
+                Icons.refresh_outlined,
+                color: Colors.green,
+              ),
+            ),
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                'AVAILABLE-${getCurrentAvlSeats()}',
+                'AVAILABLE-${widget.searchResponseModel.availableSeats}',
                 style: const TextStyle(
                   fontSize: 20,
                   color: Colors.green,
@@ -182,7 +198,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
   }
 
   ///passsenger secton Widget
-  List<PassangerDetail> addPassengerList = [];
+  List<Passanger> addPassengerList = [];
   Widget passengerSection() {
     return Column(
       children: [
@@ -470,15 +486,10 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
     );
   }
 
-  ///latest available seats in this bus
-  getCurrentAvlSeats() {
-    return ApiBackend.getCurrentAvlSeats(widget.searchResponseModel);
-  }
-
   ///AddPassanger button OnPress Mehtod
   void addPassengerAction() {
     if (addPassengerList.length >=
-        min(5, int.parse(widget.searchResponseModel.availableSeats))) {
+        min(5, widget.searchResponseModel.availableSeats)) {
       //cannot add morethan 5 passenger at atime sorry;
       MyLib.myToast("cannot add more than 10 passenger at a time");
       return;
@@ -562,7 +573,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
                   MyLib.myToast("Please Fill Above Fields Properly");
                   return;
                 }
-                PassangerDetail p = PassangerDetail(nameController.text,
+                Passanger p = Passanger(nameController.text,
                     int.parse(ageController.text), gender!);
                 setState(
                   () {
@@ -579,12 +590,61 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
     );
   }
 
-  void reviewDetailButtonAction() {
+  ///OnTap->
+  ///1. check if logedin
+  ///2.yes: update sets and navigate forward
+  ///3.No: navigate to login after login retun [2]
+  Future<void> reviewDetailButtonAction() async {
+    /**check if loged in */
+    if (!await ApiBackend.isLogedin()) {
+      /**Not Loged In 
+       * Show the Dialog box to redirect to Login Page First
+       */
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Log In'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('You are Not Loged In'),
+                Text('To proceed Further, Please Log In First!'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.pop(context, 'Cancel');
+              },
+            ),
+            TextButton(
+              child: const Text('Log In'),
+              onPressed: () {
+                Navigator.pop(context, 'Ok');
+                MyLib.myNewPage(context, LogInScreen());
+              },
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+    /**if LogedIn */
+    //waiting for AVL seats update before take to Review Page
+    MyLib.myWaitingWidget(context);
+    int j = await ApiBackend.getCurrentAvlSeats(widget.searchResponseModel);
+    setState(() {
+      widget.searchResponseModel.availableSeats = j;
+    });
+    Navigator.pop(context);
+
+    //send to review page
     MyLib.myNewPage(
       context,
       ReviewJourneyPage(
         searchResponseModel: widget.searchResponseModel,
-        ftd: widget.ftd,
         passengerList: addPassengerList,
         modeOfPayment: modeOfPayment,
       ),

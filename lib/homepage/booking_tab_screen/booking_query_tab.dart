@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_progress_hud/flutter_progress_hud.dart';
+import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/booking_query_result_page/booking_query_result.dart';
 import 'package:gsgflutter/homepage/date_picker_wig.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
@@ -30,26 +32,33 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
 
     var datePickerWig = DatePickerWig();
 
-    void searchButtonAction(
-        String source, String destination, DateTime datePicked) {
+    Future<void> searchButtonAction(String source, String destination,
+        DateTime datePicked, BuildContext contex) async {
       SearchRequestModel tmp =
           SearchRequestModel(source, destination, datePicked);
       if (source.isEmpty || destination.isEmpty) {
         MyLib.myToast("Please Fill Above Fields Properly");
         return;
       }
+
+      MyLib.myWaitingWidget(context);
+      var tempListFuture = await ApiBackend.BookingQuerySearchCall(tmp);
+      Navigator.pop(contex);
+
       MyLib.myNewPage(
           context,
           BookingQueryResultPage(
             ftd: tmp,
             originTAController: sourceInputController,
             destTAController: destInputController,
+            responseList: tempListFuture,
           ));
     }
 
     /**
-     * add missing onpres func
+     * Search Button Widget with Onpress function
      */
+
     var searchButton = Container(
       margin: const EdgeInsets.symmetric(vertical: 10.0),
       child: ElevatedButton(
@@ -57,15 +66,11 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
           primary: myPrimaryColor, // background
           onPrimary: Colors.white, // foreground
         ),
-        onPressed: () {
-          searchButtonAction(
-            sourceInputController.text,
-            destInputController.text,
-            datePickerWig.dateSelected,
-          );
+        onPressed: () async {
+          searchButtonAction(sourceInputController.text,
+              destInputController.text, datePickerWig.dateSelected, context);
         },
         child: Container(
-          // margin: const EdgeInsets.all(5.0),
           padding: const EdgeInsets.all(10.0),
           alignment: Alignment.center,
           child: Row(
@@ -95,7 +100,6 @@ class _BookingQueryTabState extends State<BookingQueryTab> {
             destinationInputWidget,
             datePickerWig,
             searchButton,
-            // const Text("~this is end~")
           ],
         ),
       ),

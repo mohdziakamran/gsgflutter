@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gsgflutter/config/global_properties.dart';
-import 'package:gsgflutter/homepage/booking_query_tab.dart';
-import 'package:gsgflutter/homepage/tid_query_tab.dart';
+import 'package:gsgflutter/config/myconfig.dart';
+import 'package:gsgflutter/homepage/booking_tab_screen/booking_query_tab.dart';
+import 'package:gsgflutter/homepage/home_drawer.dart';
+import 'package:gsgflutter/homepage/tid_tab_screen/tid_query_tab.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -35,8 +36,9 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ],
           ),
-          title: const Text(GlobalProperties.myTitle),
+          title: const Text(MYTITLE),
         ),
+        drawer: HomeDrawer(),
         body: const TabBarView(children: [
           BookingQueryTab(),
           TidQueryTab(),

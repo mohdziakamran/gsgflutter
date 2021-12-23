@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/login_signup_reset/widgets/primary_button.dart';
 import 'package:gsgflutter/login_signup_reset/widgets/signup_form.dart';
+import 'package:gsgflutter/model/signup_request_model.dart';
 import 'package:gsgflutter/theme.dart';
 import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:validators/validators.dart';
@@ -134,7 +135,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     )));
   }
 
-  void signUpAction() {
+  Future<void> signUpAction() async {
     if (!isChecked) {
       MyLib.mySnackbar(context, "Please check the box above");
       return;
@@ -158,17 +159,32 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (isAlpha(ps) || isNumeric(ps) || ps.length < 8) {
       MyLib.mySnackbar(
           context, "Passwprd must be Alpha numeric.\nand atleast 8 char long.");
+      return;
     }
     if (ps != cps) {
       MyLib.mySnackbar(context, "Password and Confirm Password should be same");
       return;
     }
 
-    ///if all check pass Make API Call
-    ApiBackend.creatAccountRequest();
+    ///-->///if all check pass Make API Call
+    try {
+      MyLib.myWaitingWidget(context);
 
-    ///On sucess response take it to login page
+      ///pojo mdel class to send request;
+      SignUpRequestModel reqModel = SignUpRequestModel(
+          firstName: fn, lastName: ln, email: em, phone: ph, password: ps);
+//creating API call
+      await ApiBackend.creatAccountRequest(reqModel);
+      Navigator.pop(context);
+    } catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, 'Email Already Exist or check your Connection');
+      return;
+    }
+
+    ///on sucessfull response
+    ///take back to login page
     Navigator.pop(context);
-    print("compleated signupaction");
+    MyLib.myToast("Registration Sucessful");
   }
 }
