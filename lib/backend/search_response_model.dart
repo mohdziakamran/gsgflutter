@@ -1,14 +1,7 @@
 class SearchResponseModel {
-  String source,
-      destination,
-      dateOfJourney,
-      busNumber,
-      busName,
-      agencyName,
-      availableSeats,
-      departureTime,
-      arrivalTime,
-      fare;
+  String source, destination, busNumber, busName, agencyName;
+  DateTime dateOfJourney, departure, arrival;
+  int availableSeats, fare;
 
   SearchResponseModel(
       this.source,
@@ -18,24 +11,19 @@ class SearchResponseModel {
       this.busName,
       this.agencyName,
       this.availableSeats,
-      this.departureTime,
-      this.arrivalTime,
+      this.departure,
+      this.arrival,
       this.fare);
-}
 
-/* example json responce object 
-{
-    "Source": "New York",
-    "Destination": "Los Angeles",
-    "DateOfJourney": "31-01-2021",
-    "AgencyName": "Agency1",
-    "BusDetails": {
-        "NumberPlate": "1234"
-    },
-    "AvailableSeatsItems": 10,
-    "FareForOneSeat": 100.00,
-    "DepartureTime": UNIXTimeObject
-    "ArrivalTime": UNIXTimeObject
+  SearchResponseModel.fromJson(Map<String, dynamic> json)
+      : source = json['source'],
+        destination = json['destination'],
+        dateOfJourney = DateTime.parse(json['dateOfJourney'] as String),
+        busNumber = json['busNumber'],
+        busName = json['busName'],
+        agencyName = json['agencyName'],
+        availableSeats = int.parse(json['availableSeats'] as String),
+        departure = DateTime.parse(json['departure'] as String),
+        arrival = DateTime.parse(json['arrival'] as String),
+        fare = int.parse(json['fare'] as String);
 }
-
-*/

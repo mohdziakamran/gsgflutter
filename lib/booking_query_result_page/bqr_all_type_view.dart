@@ -1,33 +1,40 @@
-import 'dart:collection';
-
 import 'package:date_time_format/src/date_time_extension_methods.dart';
 import 'package:flutter/material.dart';
+import 'package:gsgflutter/backend/api_backend.dart';
 import 'package:gsgflutter/backend/search_request_model.dart';
 import 'package:gsgflutter/backend/search_response_model.dart';
 import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:gsgflutter/passenger_details/passenger_details_page.dart';
 
-class BqrAgencyType extends StatefulWidget {
-  Map<String, List<SearchResponseModel>> responseListmap;
+class BqrAllType extends StatefulWidget {
   SearchRequestModel ftd;
-
-  BqrAgencyType({Key? key, required this.responseListmap, required this.ftd})
+  List<SearchResponseModel> responseList;
+  BqrAllType({Key? key, required this.responseList, required this.ftd})
       : super(key: key);
 
   @override
-  _BqrAgencyTypeState createState() => _BqrAgencyTypeState();
+  _BqrAllTypeState createState() => _BqrAllTypeState();
 }
 
-class _BqrAgencyTypeState extends State<BqrAgencyType> {
+class _BqrAllTypeState extends State<BqrAllType> {
   /*widget for each result*/
   Widget eachResultWig(SearchResponseModel each) {
-    Color mycol = ((int.parse(each.availableSeats) > 0)
+    Color mycol = ((each.availableSeats > 0)
         ? Colors.green.shade800
         : Colors.red.shade800);
     double pdn = 2;
     return Column(
       children: [
         ///Agency Name
+        Container(
+          alignment: Alignment.centerLeft,
+          padding: EdgeInsets.all(pdn),
+          child: Text(
+            each.agencyName,
+            style: TextStyle(fontSize: 15, color: Colors.grey[700]),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
 
         ///bus details
         Row(
@@ -56,14 +63,15 @@ class _BqrAgencyTypeState extends State<BqrAgencyType> {
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                "${each.departureTime} ${widget.ftd.datePicked.format('M j')}",
+                // "${each.departureTime} ${widget.ftd.datePicked.format('M j')}",
+                "${each.departure.format('H:i')} ${each.departure.format('M j')}",
                 style: TextStyle(fontSize: 22, color: Colors.grey[800]),
               ),
             ),
             Padding(
               padding: EdgeInsets.all(pdn),
               child: Text(
-                "${each.arrivalTime} ${widget.ftd.datePicked.format('M j')}",
+                "${each.arrival.format('H:i')}  ${each.arrival.format('M j')}",
                 style: TextStyle(fontSize: 22, color: Colors.grey[800]),
               ),
             ),
@@ -105,6 +113,31 @@ class _BqrAgencyTypeState extends State<BqrAgencyType> {
             ])
           ],
         ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //     Flexible(
+        //       child: Padding(
+        //         padding: EdgeInsets.all(pdn),
+        //         child: Text(
+        //           each.source,
+        //           style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+        //           overflow: TextOverflow.ellipsis,
+        //         ),
+        //       ),
+        //     ),
+        //     Flexible(
+        //       child: Padding(
+        //         padding: EdgeInsets.all(pdn),
+        //         child: Text(
+        //           each.destination,
+        //           style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+        //           overflow: TextOverflow.ellipsis,
+        //         ),
+        //       ),
+        //     ),
+        //   ],
+        // ),
 
         ///->
         Row(
@@ -125,7 +158,7 @@ class _BqrAgencyTypeState extends State<BqrAgencyType> {
                 Padding(
                   padding: EdgeInsets.all(pdn),
                   child: Text(
-                    each.availableSeats,
+                    '${each.availableSeats}',
                     style: TextStyle(fontSize: 25, color: mycol),
                   ),
                 ),
@@ -147,7 +180,7 @@ class _BqrAgencyTypeState extends State<BqrAgencyType> {
                 Padding(
                   padding: const EdgeInsets.all(5),
                   child: Text(
-                    each.fare,
+                    '${each.fare}',
                     style: TextStyle(fontSize: 25, color: Colors.green[800]),
                   ),
                 ),
@@ -165,7 +198,6 @@ class _BqrAgencyTypeState extends State<BqrAgencyType> {
     MyLib.myNewPage(
       context,
       PassengerDetailsPage(
-        ftd: widget.ftd,
         searchResponseModel: srpm,
       ),
     );
@@ -173,43 +205,35 @@ class _BqrAgencyTypeState extends State<BqrAgencyType> {
 
   @override
   Widget build(BuildContext context) {
-    List<String> mapkeys = widget.responseListmap.keys.toList();
-    return ListView.builder(
-      itemCount: mapkeys.length,
-      itemBuilder: (context, i) {
-        return ExpansionTile(
-          title: Padding(
-            padding: EdgeInsets.all(18.0),
-            child: Text(
-              mapkeys[i],
-              style: const TextStyle(
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    return RefreshIndicator(
+        child: ListView.separated(
+          padding: const EdgeInsets.all(8),
+          itemCount: widget.responseList.length,
+          itemBuilder: (BuildContext context, int index) {
+            var temp = widget.responseList[index];
+            return TextButton(
+              onPressed: () {
+                onTapAnyResultAction(temp);
+              },
+              child: eachResultWig(temp),
+            );
+          },
+          separatorBuilder: (BuildContext context, int index) => const Divider(
+            thickness: 1,
           ),
-          children: <Widget>[
-            Column(
-              children:
-                  _buildExpandableContent(widget.responseListmap[mapkeys[i]]),
-            ),
-          ],
-        );
-      },
-    );
+        ),
+        onRefresh: () async {
+          MyLib.myWaitingWidget(context);
+          var tempListFuture =
+              await ApiBackend.BookingQuerySearchCall(widget.ftd);
+          Navigator.pop(context);
+          setState(() {
+            widget.responseList = tempListFuture;
+          });
+        });
   }
 
-  //build widget for each expandable
-  _buildExpandableContent(List<SearchResponseModel>? responseList) {
-    List<Widget> columnContent = [];
-    for (SearchResponseModel content in responseList!) {
-      columnContent.add(TextButton(
-        onPressed: () {
-          onTapAnyResultAction(content);
-        },
-        child: eachResultWig(content),
-      ));
-    }
-    return columnContent;
+  refreshPage() async {
+    ;
   }
 }

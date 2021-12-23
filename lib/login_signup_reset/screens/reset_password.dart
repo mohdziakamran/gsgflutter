@@ -58,16 +58,29 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  void resetPasswordAction() {
+  Future<void> resetPasswordAction() async {
     String email = widget.emailController.text;
     if (email.isEmpty || !isEmail(email)) {
       MyLib.mySnackbar(context, "Invalid Email");
+      return;
     }
 
-    ///api call
-    ApiBackend.forgotPasswordRequest();
+    ///-->///if all check pass Make API Call
+    try {
+      MyLib.myWaitingWidget(context);
 
-    ///if sucess to login
+//creating API call
+      await ApiBackend.forgotPasswordRequest(email);
+      Navigator.pop(context);
+    } catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, 'Email Does not Exist!');
+      return;
+    }
+
+    ///on sucessfull response
+    ///take back to login page
     Navigator.pop(context);
+    MyLib.myToast("Reset Password Link has been Sent to your Email");
   }
 }

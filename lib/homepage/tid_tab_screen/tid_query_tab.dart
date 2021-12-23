@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gsgflutter/backend/api_backend.dart';
+import 'package:gsgflutter/homepage/tid_tab_screen/tid_query_result_screen.dart';
+import 'package:gsgflutter/model/tid_response_model.dart';
+import 'package:gsgflutter/mylib/my_lib.dart';
 import 'package:gsgflutter/theme.dart';
 
 class TidQueryTab extends StatefulWidget {
@@ -21,14 +25,9 @@ class _TidQueryTabState extends State<TidQueryTab> {
           primary: myPrimaryColor, // background
           onPrimary: Colors.white, // foreground
         ),
-        //TODO add on press funtion
         onPressed: () {
-          print(_textEditingController.text);
-          // searchButtonAction(
-          //   sourceInputController.text,
-          //   destInputController.text,
-          //   datePickerWig.dateSelected,
-          // );
+          print(_textEditingController.text); ///////////////
+          tidQUeryAction();
         },
         child: Container(
           // margin: const EdgeInsets.all(5.0),
@@ -77,5 +76,39 @@ class _TidQueryTabState extends State<TidQueryTab> {
         ],
       ),
     );
+  }
+
+  //on tab Action Method for making Api call for tid query
+  Future<void> tidQUeryAction() async {
+    String tid = _textEditingController.text;
+
+    if (tid.isEmpty) {
+      // MyLib.myToast("Fill above fields");
+      MyLib.mySnackbar(context, "Fill above fields");
+      return;
+    }
+
+    ///-->
+    TidQueryResponseModel response;
+    try {
+      MyLib.myWaitingWidget(context);
+
+      ///Send request to login api
+      response = await ApiBackend.sendTidQueryRequest(tid);
+      Navigator.pop(context);
+    } catch (e) {
+      print(e);
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, 'Invalid TID');
+      return;
+    }
+
+    ///on sucessfull response
+    ///take into the show Ticket screen
+    MyLib.myNewPage(
+        context,
+        TidQueryResultScreen(
+          responseModel: response,
+        ));
   }
 }

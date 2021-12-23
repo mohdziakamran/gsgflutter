@@ -1,44 +1,36 @@
 import 'package:date_time_format/src/date_time_extension_methods.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gsgflutter/backend/api_backend.dart';
-import 'package:gsgflutter/backend/search_response_model.dart';
-import 'package:gsgflutter/login_signup_reset/screens/login.dart';
-import 'package:gsgflutter/mylib/my_lib.dart';
+import 'package:gsgflutter/model/tid_response_model.dart';
 import 'package:gsgflutter/passenger_details/gender.dart';
-import 'package:gsgflutter/passenger_details/mode_of_payment_enum.dart';
-import 'package:gsgflutter/model/passenger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class ReviewJourneyPage extends StatefulWidget {
-  ReviewJourneyPage(
-      {Key? key,
-      required this.searchResponseModel,
-      required this.modeOfPayment,
-      required this.passengerList})
+class TidQueryResultScreen extends StatefulWidget {
+  TidQueryResponseModel responseModel;
+  TidQueryResultScreen({Key? key, required this.responseModel})
       : super(key: key);
-  SearchResponseModel searchResponseModel;
-  List<Passanger> passengerList;
-  ModeOfPayment modeOfPayment;
 
   @override
-  _ReviewJourneyPageState createState() => _ReviewJourneyPageState();
+  _TidQueryResultScreenState createState() => _TidQueryResultScreenState();
 }
 
-class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
+class _TidQueryResultScreenState extends State<TidQueryResultScreen> {
   ///Busdetails Section
   Widget busDetailsSection() {
     double pdn = 5;
     return Column(
       children: [
+        /**agencyname widget */
         Container(
           alignment: Alignment.centerLeft,
           padding: EdgeInsets.all(pdn),
           child: Text(
-            widget.searchResponseModel.agencyName,
+            widget.responseModel.agency,
             style: TextStyle(fontSize: 15, color: Colors.grey[700]),
             overflow: TextOverflow.ellipsis,
           ),
         ),
+
+        /**buslogo bus name bus number */
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -50,7 +42,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
               child: Padding(
                 padding: EdgeInsets.all(pdn),
                 child: Text(
-                  "${widget.searchResponseModel.busName} (${widget.searchResponseModel.busNumber})",
+                  "${widget.responseModel.busName} (${widget.responseModel.busNumber})",
                   style: TextStyle(fontSize: 20, color: Colors.grey[850]),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -58,9 +50,38 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
             )
           ],
         ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const Icon(
+              CupertinoIcons.number_square,
+              color: Colors.black,
+            ),
+            Padding(
+              padding: EdgeInsets.all(pdn),
+              child: Text(
+                "TID:",
+                style: TextStyle(fontSize: 20, color: Colors.grey[850]),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(pdn),
+                child: Text(
+                  "${widget.responseModel.tid}",
+                  style: TextStyle(fontSize: 20, color: Colors.grey[850]),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            )
+          ],
+        ),
+        /**line divide */
         const Divider(
           thickness: 3,
         ),
+        /**departure details widgets list */
         Table(
           children: [
             TableRow(
@@ -82,7 +103,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                     Padding(
                       padding: EdgeInsets.all(pdn),
                       child: Text(
-                        "${widget.searchResponseModel.departure.format('H:i')} ${widget.searchResponseModel.departure.format('M j, l')}",
+                        "${widget.responseModel.departure.format('H:i')} ${widget.responseModel.departure.format('M j, l')}",
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.grey[800],
@@ -99,7 +120,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                             ),
                             Expanded(
                               child: Text(
-                                widget.searchResponseModel.source,
+                                widget.responseModel.source,
                                 style: TextStyle(
                                     fontSize: 18, color: Colors.grey[700]),
                                 overflow: TextOverflow.ellipsis,
@@ -111,6 +132,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                 ),
               ],
             ),
+            /**Arrival details widgets list */
             TableRow(
               children: [
                 Column(
@@ -130,7 +152,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                     Padding(
                       padding: EdgeInsets.all(pdn),
                       child: Text(
-                        "${widget.searchResponseModel.arrival.format('H:i')} ${widget.searchResponseModel.arrival.format('M j, l')}",
+                        "${widget.responseModel.arrival.format('H:i')} ${widget.responseModel.arrival.format('M j, l')}",
                         style: TextStyle(
                             fontSize: 18,
                             color: Colors.grey[800],
@@ -146,7 +168,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                               child: Icon(Icons.my_location),
                             ),
                             Text(
-                              widget.searchResponseModel.destination,
+                              widget.responseModel.destination,
                               style: TextStyle(
                                   fontSize: 18, color: Colors.grey[700]),
                               overflow: TextOverflow.ellipsis,
@@ -159,37 +181,6 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
             ),
           ],
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(pdn),
-              child: Text(
-                'AVAILABLE SEATS-${widget.searchResponseModel.availableSeats}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.green,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                MyLib.myWaitingWidget(context);
-                int j = await ApiBackend.getCurrentAvlSeats(
-                    widget.searchResponseModel);
-                setState(() {
-                  widget.searchResponseModel.availableSeats = j;
-                });
-                Navigator.pop(context);
-              },
-              child: const Icon(
-                Icons.refresh_outlined,
-                color: Colors.green,
-              ),
-            ),
-          ],
-        ),
       ],
     );
   }
@@ -198,6 +189,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
   Widget passengerSection() {
     return Column(
       children: [
+        /**Title widget for passenger details */
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: const [
@@ -213,9 +205,11 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
             ),
           ],
         ),
+        /**line deivider */
         const Divider(
           thickness: 3,
         ),
+        /**person or passenger list builder */
         Table(
           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           columnWidths: const {
@@ -251,7 +245,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(8),
-          itemCount: widget.passengerList.length,
+          itemCount: widget.responseModel.passengerList.length,
           itemBuilder: (contex, index) {
             return Table(
               // mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -268,16 +262,17 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                   children: [
                     const Icon(Icons.person),
                     Text(
-                      widget.passengerList[index].name,
+                      widget.responseModel.passengerList[index].name,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "${widget.passengerList[index].age}",
+                      "${widget.responseModel.passengerList[index].age}",
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      (widget.passengerList[index].gender == Gender.FEMALE)
+                      (widget.responseModel.passengerList[index].gender ==
+                              Gender.FEMALE)
                           ? "FEMALE"
                           : "MALE",
                       style: const TextStyle(fontWeight: FontWeight.bold),
@@ -293,7 +288,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "Total Fare: Rs ${widget.searchResponseModel.fare * widget.passengerList.length}",
+              "Total Amount Paid: Rs ${widget.responseModel.paidAmount}\nTotal Number of Seats: ${widget.responseModel.passengerList.length}",
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -306,86 +301,6 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
     );
   }
 
-  ///mode of payment section
-  bool isCheckedSelfValidation = false;
-  Widget modeOfPaymentSection() {
-    Color getColor(Set<MaterialState> states) {
-      const Set<MaterialState> interactiveStates = <MaterialState>{
-        MaterialState.pressed,
-        MaterialState.hovered,
-        MaterialState.focused,
-      };
-      if (states.any(interactiveStates.contains)) {
-        return Colors.blue;
-      }
-      return Colors.green;
-    }
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: const [
-            Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                "Payment Method Details",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        Table(
-          children: [
-            TableRow(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Text(
-                    "Mode of payment Seelcted ${widget.modeOfPayment} ",
-                    style: TextStyle(
-                      color: Colors.grey.shade700,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        Table(
-          columnWidths: const {
-            0: FractionColumnWidth(.1),
-            1: FractionColumnWidth(.8),
-          },
-          children: [
-            TableRow(
-              children: [
-                Checkbox(
-                  checkColor: Colors.white,
-                  fillColor: MaterialStateProperty.resolveWith(getColor),
-                  value: isCheckedSelfValidation,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      isCheckedSelfValidation = value!;
-                    });
-                  },
-                ),
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text(
-                      "I confirm all the information provided above is correct."),
-                )
-              ],
-            )
-          ],
-        )
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -393,7 +308,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
         title: Column(
           children: const [
             Text(
-              "REVIEW JOURNEY",
+              "Ticker Query",
               style: TextStyle(
                 fontSize: 23,
               ),
@@ -418,76 +333,18 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
               color: Colors.white,
               child: passengerSection(),
             ),
-            Container(
-              margin: EdgeInsets.all(8.0),
-              padding: EdgeInsets.all(8.0),
-              color: Colors.white,
-              child: modeOfPaymentSection(),
-            ),
+            ElevatedButton(
+                onPressed: () {
+                  downloadTicketAction();
+                },
+                child: Text("Download Ticket"))
           ],
-        ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: ElevatedButton(
-          onPressed: () {
-            goToPaymentAction();
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 18.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  "PAYMENT ",
-                  style: TextStyle(
-                    fontSize: 20,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Icon(Icons.arrow_forward_ios_rounded)
-              ],
-            ),
-          ),
         ),
       ),
     );
   }
 
-//while is check not true raise a toast to check the checkbox
-//on press-> popup to confirm to pre=oceed then redirect to respective payment page
-  void goToPaymentAction() {
-    if (isCheckedSelfValidation) {
-      showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          title: const Text('Confirm Payment'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: const <Widget>[
-                Text('This will take you to Payment page.'),
-                Text('Would you like to confirm to go for payment?'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.pop(context, 'Cancel');
-              },
-            ),
-            TextButton(
-              child: const Text('Confirm'),
-              onPressed: () {
-                Navigator.pop(context, 'Ok');
-                MyLib.myNewPage(context, const Text("Not Implemented yet!!!"));
-              },
-            ),
-          ],
-        ),
-      );
-    } else {
-      MyLib.myToast("Please select the Check box first");
-    }
-  }
+  ///Download ticket action button
+  ///onpress generate ticket with uniqueID
+  void downloadTicketAction() {}
 }

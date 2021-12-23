@@ -1,5 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:gsgflutter/model/user.dart';
+import 'package:gsgflutter/theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyLib {
   ///flutter toast
@@ -22,8 +27,20 @@ class MyLib {
     );
   }
 
+  ///snackbar
   static mySnackbar(BuildContext context, String message) {
     var snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  ///await indicator of loading indicator
+  static myWaitingWidget(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        });
   }
 }
