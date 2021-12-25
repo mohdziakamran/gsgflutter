@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'package:gsgflutter/theme.dart';
-import 'homepage/my_home_page.dart';
+import 'package:gsgflutter/src/home/home_screen/my_home_screen.dart';
+import 'package:gsgflutter/src/utility/theme.dart';
 
 void main() {
   runApp(const MyApp());
