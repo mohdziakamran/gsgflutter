@@ -18,17 +18,19 @@ class SignUpForm extends StatefulWidget {
 }
 
 class _SignUpFormState extends State<SignUpForm> {
+  bool _isObscure1 = true;
+  bool _isObscure2 = true;
   bool _isObscure = true;
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        buildInputFormName('First Name', false, widget.fname),
-        buildInputFormName('Last Name', false, widget.lname),
+        buildInputFormName('First Name', widget.fname),
+        buildInputFormName('Last Name', widget.lname),
         buildInputForm('Email', false, widget.email),
         buildInputFormPhone('Phone', false, widget.phone),
-        buildInputForm('Password', true, widget.pass),
-        buildInputForm('Confirm Password', true, widget.confpass),
+        buildInputFormPass('Password', true, widget.pass),
+        buildInputFormcpass('Confirm Password', true, widget.confpass),
       ],
     );
   }
@@ -66,6 +68,72 @@ class _SignUpFormState extends State<SignUpForm> {
         ));
   }
 
+  Padding buildInputFormPass(
+      String hint, bool pass, TextEditingController editingController) {
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: TextFormField(
+          controller: editingController,
+          obscureText: pass ? _isObscure1 : false,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: kTextFieldColor),
+            focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: kPrimaryColor)),
+            suffixIcon: pass
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _isObscure1 = !_isObscure1;
+                      });
+                    },
+                    icon: _isObscure1
+                        ? const Icon(
+                            Icons.visibility_off,
+                            color: kTextFieldColor,
+                          )
+                        : const Icon(
+                            Icons.visibility,
+                            color: kPrimaryColor,
+                          ))
+                : null,
+          ),
+        ));
+  }
+
+  Padding buildInputFormcpass(
+      String hint, bool pass, TextEditingController editingController) {
+    return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: TextFormField(
+          controller: editingController,
+          obscureText: pass ? _isObscure2 : false,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: kTextFieldColor),
+            focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: kPrimaryColor)),
+            suffixIcon: pass
+                ? IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _isObscure2 = !_isObscure2;
+                      });
+                    },
+                    icon: _isObscure2
+                        ? const Icon(
+                            Icons.visibility_off,
+                            color: kTextFieldColor,
+                          )
+                        : const Icon(
+                            Icons.visibility,
+                            color: kPrimaryColor,
+                          ))
+                : null,
+          ),
+        ));
+  }
+
   Padding buildInputFormPhone(
       String hint, bool pass, TextEditingController editingController) {
     return Padding(
@@ -74,7 +142,6 @@ class _SignUpFormState extends State<SignUpForm> {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
           keyboardType: TextInputType.number,
           controller: editingController,
-          obscureText: pass ? _isObscure : false,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: kTextFieldColor),
@@ -85,13 +152,12 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Padding buildInputFormName(
-      String hint, bool pass, TextEditingController editingController) {
+      String hint, TextEditingController editingController) {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 5),
         child: TextFormField(
           textCapitalization: TextCapitalization.words,
           controller: editingController,
-          obscureText: pass ? _isObscure : false,
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: const TextStyle(color: kTextFieldColor),

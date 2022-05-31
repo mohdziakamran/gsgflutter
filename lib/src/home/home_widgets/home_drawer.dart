@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gsgflutter/src/login_signup_reset/screens/login.dart';
+import 'package:gsgflutter/src/login_signup_reset/screens/signup.dart';
 import 'package:gsgflutter/src/model/user_model.dart';
 import 'package:gsgflutter/src/utility/backend/api_backend.dart';
 import 'package:gsgflutter/src/utility/my_lib.dart';
@@ -220,23 +221,48 @@ class _HomeDrawerState extends State<HomeDrawer> {
           size: 70,
           color: myPrimaryColor,
         ),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-            Navigator.push(
-                    context, MaterialPageRoute(builder: (_) => LogInScreen()))
-                .then((_) => setState(() {
-                      checkLogedin();
-                    }));
-          },
-          child: const Text(
-            "Log In ?",
-            style: TextStyle(
-              fontSize: 20,
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                SignUpScreen(email: TextEditingController())))
+                    .then((_) => setState(() {
+                          checkLogedin();
+                        }));
+              },
+              child: const Text(
+                "Sign Up ?",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+                textAlign: TextAlign.center,
+              ),
             ),
-            textAlign: TextAlign.center,
-          ),
-        ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(context,
+                        MaterialPageRoute(builder: (_) => LogInScreen()))
+                    .then((_) => setState(() {
+                          checkLogedin();
+                        }));
+              },
+              child: const Text(
+                "Log In ?",
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        )
       ],
     );
   }

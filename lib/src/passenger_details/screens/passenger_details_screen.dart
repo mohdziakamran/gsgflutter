@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:date_time_format/src/date_time_extension_methods.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gsgflutter/MyException.dart';
 import 'package:gsgflutter/src/login_signup_reset/screens/login.dart';
 import 'package:gsgflutter/src/model/gender.dart';
 import 'package:gsgflutter/src/model/mode_of_payment_enum.dart';
@@ -11,6 +12,7 @@ import 'package:gsgflutter/src/model/search_response_model.dart';
 import 'package:gsgflutter/src/review_journey/screens/review_journey_screen.dart';
 import 'package:gsgflutter/src/utility/backend/api_backend.dart';
 import 'package:gsgflutter/src/utility/my_lib.dart';
+import 'package:intl/intl.dart';
 
 class PassengerDetailsPage extends StatefulWidget {
   PassengerDetailsPage({Key? key, required this.searchResponseModel})
@@ -164,12 +166,23 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
             TextButton(
               onPressed: () async {
                 MyLib.myWaitingWidget(context);
-                int j = await ApiBackend.getCurrentAvlSeats(
-                    widget.searchResponseModel);
-                setState(() {
-                  widget.searchResponseModel.availableSeats = j;
-                });
+                try {
+                  int j = await ApiBackend.getCurrentAvlSeats(
+                      widget.searchResponseModel);
+                  setState(() {
+                    widget.searchResponseModel.availableSeats = j;
+                  });
+                } on NoInternetException catch (e) {
+                  Navigator.pop(context);
+                  MyLib.myToast(e.message);
+                  return;
+                } on Exception catch (e) {
+                  Navigator.pop(context);
+                  MyLib.mySnackbar(context, e.toString().split(": ")[1]);
+                  return;
+                }
                 Navigator.pop(context);
+                MyLib.myToast("Updated Successfully");
               },
               child: const Icon(
                 Icons.refresh_outlined,
@@ -441,7 +454,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
           children: [
             scafoldBodyShorter(busDetailsSection()),
             scafoldBodyShorter(passengerSection()),
-            scafoldBodyShorter(modeOfPaymentWig()),
+            // scafoldBodyShorter(modeOfPaymentWig()),
             scafoldBodyShorter(passangerMobileNumberWig()),
           ],
         ),
@@ -449,6 +462,10 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
       bottomNavigationBar: BottomAppBar(
         child: ElevatedButton(
           onPressed: () {
+            if (addPassengerList.isEmpty) {
+              MyLib.myToast("Please Add Passenger");
+              return;
+            }
             reviewDetailButtonAction();
           },
           child: Container(
@@ -487,7 +504,7 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
     if (addPassengerList.length >=
         min(5, widget.searchResponseModel.availableSeats)) {
       //cannot add morethan 5 passenger at atime sorry;
-      MyLib.myToast("cannot add more than 10 passenger at a time");
+      MyLib.myToast("cannot add more than seats Avl or 5 passenger at a time");
       return;
     }
     showDialog(
@@ -511,7 +528,10 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
                     TextFormField(
                       controller: ageController,
                       decoration: const InputDecoration(hintText: 'Age'),
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(2)
+                      ],
                       keyboardType: TextInputType.number,
                     ),
                     Row(
@@ -569,8 +589,12 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
                   MyLib.myToast("Please Fill Above Fields Properly");
                   return;
                 }
-                Passanger p = Passanger(nameController.text,
-                    int.parse(ageController.text), gender!);
+                String pname = "";
+                for (String str in nameController.text.split(" ")) {
+                  pname += toBeginningOfSentenceCase(str)! + " ";
+                }
+                Passanger p = Passanger(
+                    pname.trim(), int.parse(ageController.text), gender!);
                 setState(
                   () {
                     addPassengerList.add(p);
@@ -630,10 +654,24 @@ class _PassengerDetailsPageState extends State<PassengerDetailsPage> {
     /**if LogedIn */
     //waiting for AVL seats update before take to Review Page
     MyLib.myWaitingWidget(context);
-    int j = await ApiBackend.getCurrentAvlSeats(widget.searchResponseModel);
-    setState(() {
-      widget.searchResponseModel.availableSeats = j;
-    });
+    // int j = await ApiBackend.getCurrentAvlSeats(widget.searchResponseModel);
+    // setState(() {
+    //   widget.searchResponseModel.availableSeats = j;
+    // });
+    try {
+      int j = await ApiBackend.getCurrentAvlSeats(widget.searchResponseModel);
+      setState(() {
+        widget.searchResponseModel.availableSeats = j;
+      });
+    } on NoInternetException catch (e) {
+      Navigator.pop(context);
+      MyLib.myToast(e.message);
+      return;
+    } on Exception catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, e.toString().split(": ")[1]);
+      return;
+    }
     Navigator.pop(context);
 
     //send to review page

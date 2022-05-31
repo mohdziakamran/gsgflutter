@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class SearchRequestModel {
   String from;
   String to;
@@ -5,9 +7,10 @@ class SearchRequestModel {
   SearchRequestModel(this.from, this.to, this.datePicked);
 
   Map<String, dynamic> toJson() => {
-        'Source': from,
-        'Destination': to,
-        'Date': '${datePicked.day}-${datePicked.month}-${datePicked.year}',
+        'source': from,
+        'destination': to,
+        'date_of_journey': DateFormat('yyyyMMdd').format(datePicked)
+        // '${datePicked.day}-${datePicked.month}-${datePicked.year}',
       };
 
   @override

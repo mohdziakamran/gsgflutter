@@ -1,5 +1,6 @@
 import 'package:date_time_format/src/date_time_extension_methods.dart';
 import 'package:flutter/material.dart';
+import 'package:gsgflutter/MyException.dart';
 import 'package:gsgflutter/src/model/search_request_model.dart';
 import 'package:gsgflutter/src/model/search_response_model.dart';
 import 'package:gsgflutter/src/passenger_details/screens/passenger_details_screen.dart';
@@ -173,7 +174,7 @@ class _BqrAllTypeState extends State<BqrAllType> {
                 Padding(
                   padding: const EdgeInsets.all(5),
                   child: Text(
-                    'Rs: ',
+                    'ETB: ',
                     style: TextStyle(fontSize: 20, color: Colors.green[800]),
                   ),
                 ),
@@ -224,12 +225,25 @@ class _BqrAllTypeState extends State<BqrAllType> {
         ),
         onRefresh: () async {
           MyLib.myWaitingWidget(context);
-          var tempListFuture =
-              await ApiBackend.BookingQuerySearchCall(widget.ftd);
+          var tempListFuture;
+          try {
+            tempListFuture =
+                await ApiBackend.bookingQuerySearchCall(widget.ftd);
+            Navigator.pop(context);
+            setState(() {
+              widget.responseList = tempListFuture;
+            });
+            return;
+          } on UnknownException catch (e) {
+            MyLib.myToast(e.message);
+            return;
+          } on NoInternetException catch (e) {
+            MyLib.myToast(e.message);
+            return;
+          } catch (e) {
+            //do nothing
+          }
           Navigator.pop(context);
-          setState(() {
-            widget.responseList = tempListFuture;
-          });
         });
   }
 

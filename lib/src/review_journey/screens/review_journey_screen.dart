@@ -7,6 +7,8 @@ import 'package:gsgflutter/src/model/search_response_model.dart';
 import 'package:gsgflutter/src/utility/backend/api_backend.dart';
 import 'package:gsgflutter/src/utility/my_lib.dart';
 
+import '../../../MyException.dart';
+
 class ReviewJourneyPage extends StatefulWidget {
   ReviewJourneyPage(
       {Key? key,
@@ -174,12 +176,23 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
             TextButton(
               onPressed: () async {
                 MyLib.myWaitingWidget(context);
-                int j = await ApiBackend.getCurrentAvlSeats(
-                    widget.searchResponseModel);
-                setState(() {
-                  widget.searchResponseModel.availableSeats = j;
-                });
+                try {
+                  int j = await ApiBackend.getCurrentAvlSeats(
+                      widget.searchResponseModel);
+                  setState(() {
+                    widget.searchResponseModel.availableSeats = j;
+                  });
+                } on NoInternetException catch (e) {
+                  Navigator.pop(context);
+                  MyLib.myToast(e.message);
+                  return;
+                } on Exception catch (e) {
+                  Navigator.pop(context);
+                  MyLib.mySnackbar(context, e.toString().split(": ")[1]);
+                  return;
+                }
                 Navigator.pop(context);
+                MyLib.myToast("Updated Successfully");
               },
               child: const Icon(
                 Icons.refresh_outlined,
@@ -291,7 +304,7 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              "Total Fare: Rs ${widget.searchResponseModel.fare * widget.passengerList.length}",
+              "Total Fare: ETB ${widget.searchResponseModel.fare * widget.passengerList.length}",
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -327,7 +340,8 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
             Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(
-                "Payment Method Details",
+                // "Payment Method Details",
+                "Acknowledgement",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -343,7 +357,8 @@ class _ReviewJourneyPageState extends State<ReviewJourneyPage> {
                 Padding(
                   padding: const EdgeInsets.all(8),
                   child: Text(
-                    "Mode of payment Seelcted ${widget.modeOfPayment} ",
+                    // "Mode of payment Seelcted ${widget.modeOfPayment} ",
+                    "Please confirm that Above information is legitmitane as per your Knoweledge and you Agerre to our terms and condition",
                     style: TextStyle(
                       color: Colors.grey.shade700,
                     ),

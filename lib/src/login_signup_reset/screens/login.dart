@@ -9,8 +9,10 @@ import 'package:gsgflutter/src/utility/my_lib.dart';
 import 'package:gsgflutter/src/utility/theme.dart';
 import 'package:validators/validators.dart';
 
+import '../../../MyException.dart';
+
 class LogInScreen extends StatefulWidget {
-  const LogInScreen({Key? key}) : super(key: key);
+  LogInScreen({Key? key}) : super(key: key);
 
   @override
   _LigInScreenState createState() => _LigInScreenState();
@@ -19,7 +21,7 @@ class LogInScreen extends StatefulWidget {
 class _LigInScreenState extends State<LogInScreen> {
   TextEditingController emailController = TextEditingController(),
       passController = TextEditingController();
-  bool _isObscure = true;
+  // bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +50,7 @@ class _LigInScreenState extends State<LogInScreen> {
                     ),
                     GestureDetector(
                       onTap: () {
+                        Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -146,9 +149,17 @@ class _LigInScreenState extends State<LogInScreen> {
       await ApiBackend.sendLoginRequest(
           emailController.text, passController.text);
       Navigator.pop(context);
-    } catch (e) {
+    } on NoInternetException catch (e) {
       Navigator.pop(context);
-      MyLib.mySnackbar(context, 'Invalid Credentials');
+      MyLib.myToast(e.message);
+      return;
+    } on UnknownException catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, "Unable to process, Try again Later");
+      return;
+    } on Exception catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, e.toString().split(": ")[1]);
       return;
     }
 

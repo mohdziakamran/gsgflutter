@@ -135,7 +135,7 @@ class _BqrAgencyTypeState extends State<BqrAgencyType> {
                 Padding(
                   padding: const EdgeInsets.all(5),
                   child: Text(
-                    'Rs: ',
+                    'ETB: ',
                     style: TextStyle(fontSize: 20, color: Colors.green[800]),
                   ),
                 ),

@@ -2,7 +2,7 @@ import 'package:gsgflutter/src/model/passenger.dart';
 
 class TidQueryResponseModel {
   String tid, agency, busNumber, busName, source, destination;
-  int paidAmount;
+  double paidAmount;
   List<Passanger> passengerList;
   DateTime departure, arrival;
 
@@ -23,12 +23,13 @@ class TidQueryResponseModel {
       tid: responseData['tid'],
       agency: responseData['agency'],
       arrival: DateTime.parse(responseData['arrival'] as String),
-      busName: responseData['busName'],
-      busNumber: responseData['busNumber'],
+      busName: responseData['bus_name'],
+      busNumber: responseData['bus_number'],
       departure: DateTime.parse(responseData['departure'] as String),
       destination: responseData['destination'],
-      paidAmount: int.parse(responseData['paidAmount'] as String),
-      passengerList: List<Passanger>.from(responseData['passengerList']
+      // paidAmount: int.parse(responseData['paidAmount'] as String),
+      paidAmount: responseData['paidAmount'],
+      passengerList: List<Passanger>.from(responseData['passenger_list']
           .map((i) => Passanger.fromJson(i))
           .toList()),
       // passengerList: List<Passanger>.from['passengerList'],

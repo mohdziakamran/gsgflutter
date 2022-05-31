@@ -6,6 +6,8 @@ import 'package:gsgflutter/src/utility/my_lib.dart';
 import 'package:gsgflutter/src/utility/theme.dart';
 import 'package:validators/validators.dart';
 
+import '../../../MyException.dart';
+
 class ResetPasswordScreen extends StatefulWidget {
   ResetPasswordScreen({Key? key, required this.emailController})
       : super(key: key);
@@ -63,23 +65,32 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       MyLib.mySnackbar(context, "Invalid Email");
       return;
     }
+    String response = "";
 
     ///-->///if all check pass Make API Call
     try {
       MyLib.myWaitingWidget(context);
 
 //creating API call
-      await ApiBackend.forgotPasswordRequest(email);
+      response = await ApiBackend.forgotPasswordRequest(email);
       Navigator.pop(context);
-    } catch (e) {
+    } on NoInternetException catch (e) {
       Navigator.pop(context);
-      MyLib.mySnackbar(context, 'Email Does not Exist!');
+      MyLib.myToast(e.message);
+      return;
+    } on UnknownException catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, e.message);
+      return;
+    } on Exception catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, e.toString().split(": ")[1]);
       return;
     }
 
     ///on sucessfull response
     ///take back to login page
     Navigator.pop(context);
-    MyLib.myToast("Reset Password Link has been Sent to your Email");
+    MyLib.myToast(response);
   }
 }

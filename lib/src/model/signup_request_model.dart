@@ -14,11 +14,12 @@ class SignUpRequestModel {
 
   ///convert to json
   Map<String, dynamic> toJson() => {
-        'firstName': firstName,
-        'lastName': lastName,
+        'first_name': firstName,
+        'last_name': lastName,
         'email': email,
-        'phone': phone,
+        'phone_number': phone,
         'password': password,
+        'confirm_password': password
       };
 
   // ///Constructor from json

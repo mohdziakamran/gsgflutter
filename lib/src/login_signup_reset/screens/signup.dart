@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:gsgflutter/src/login_signup_reset/widgets/primary_button.dart';
 import 'package:gsgflutter/src/login_signup_reset/widgets/signup_form.dart';
@@ -6,6 +8,9 @@ import 'package:gsgflutter/src/utility/backend/api_backend.dart';
 import 'package:gsgflutter/src/utility/my_lib.dart';
 import 'package:gsgflutter/src/utility/theme.dart';
 import 'package:validators/validators.dart';
+
+import '../../../MyException.dart';
+import 'login.dart';
 
 class SignUpScreen extends StatefulWidget {
   SignUpScreen({Key? key, required this.email}) : super(key: key);
@@ -64,6 +69,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (_) => LogInScreen()));
                     },
                     child: Text(
                       'Log In',
@@ -167,6 +174,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     }
 
     ///-->///if all check pass Make API Call
+    String response = "";
     try {
       MyLib.myWaitingWidget(context);
 
@@ -174,17 +182,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
       SignUpRequestModel reqModel = SignUpRequestModel(
           firstName: fn, lastName: ln, email: em, phone: ph, password: ps);
 //creating API call
-      await ApiBackend.creatAccountRequest(reqModel);
+      response = await ApiBackend.creatAccountRequest(reqModel);
       Navigator.pop(context);
-    } catch (e) {
+    } on NoInternetException catch (e) {
       Navigator.pop(context);
-      MyLib.mySnackbar(context, 'Email Already Exist or check your Connection');
+      MyLib.myToast(e.message);
+      return;
+    } on UnknownException catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, "Unable to process, Try again Later");
+      return;
+    } on Exception catch (e) {
+      Navigator.pop(context);
+      MyLib.mySnackbar(context, e.toString().split(": ")[1]);
       return;
     }
 
     ///on sucessfull response
     ///take back to login page
     Navigator.pop(context);
-    MyLib.myToast("Registration Sucessful");
+    Navigator.push(context, MaterialPageRoute(builder: (_) => LogInScreen()));
+    MyLib.myToast(response);
   }
 }

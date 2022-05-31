@@ -5,6 +5,7 @@ class MyLib {
   ///flutter toast
   static myToast(String string) {
     return Fluttertoast.showToast(
+        // child: Text(string),
         msg: string,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.BOTTOM,

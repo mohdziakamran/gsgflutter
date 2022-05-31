@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:gsgflutter/MyException.dart';
 import 'package:gsgflutter/src/utility/backend/api_backend.dart';
+import 'package:gsgflutter/src/utility/my_lib.dart';
 import 'package:gsgflutter/src/utility/theme.dart';
 import 'package:http/http.dart' as http;
 
@@ -33,12 +35,12 @@ class _WigFromState extends State<WigInput> {
         textFieldConfiguration: TextFieldConfiguration(
           decoration: InputDecoration(
             labelText: widget.lable,
-            icon: Icon(
-              Icons.pin_drop,
-              // color: Colors.green,
-              color: myTertiaryColor,
-              size: 30,
-            ),
+            // icon: Icon(
+            //   Icons.pin_drop,
+            //   // color: Colors.green,
+            //   color: myTertiaryColor,
+            //   size: 30,
+            // ),
           ),
           controller: widget.typeAheadController,
           style: const TextStyle(fontSize: 18),
@@ -46,8 +48,14 @@ class _WigFromState extends State<WigInput> {
         suggestionsCallback: (pattern) async {
           // return await ApiBackend.getSuggestions(pattern);
           if (WigInput.states.isEmpty) {
-            WigInput.states =
-                await ApiBackend.getSuggestionsApiCall() as List<String>;
+            try {
+              WigInput.states =
+                  await ApiBackend.getSuggestionsApiCall() as List<String>;
+            } on UnknownException catch (e) {
+              MyLib.myToast(e.message);
+            } catch (e) {
+              //do nothing
+            }
           }
           List<String> matches = [];
           matches.addAll(WigInput.states);
