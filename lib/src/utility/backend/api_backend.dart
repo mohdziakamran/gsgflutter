@@ -23,7 +23,7 @@ class ApiBackend {
     }
   }
 
-  ///* here we are supposed to make API GET calls to get the city lists
+  ///* here we are supposed to make API GET calls to get the Bus Stop city lists
   static getSuggestionsApiCall() async {
     if (!(await hasNetwork())) {
       MyLib.myToast("No Internet");
