@@ -9,7 +9,7 @@ class SearchRequestModel {
   Map<String, dynamic> toJson() => {
         'source': from,
         'destination': to,
-        'date_of_journey': DateFormat('yyyyMMdd').format(datePicked)
+        'date_of_journey': DateFormat('dd-MM-yyyy').format(datePicked)
         // '${datePicked.day}-${datePicked.month}-${datePicked.year}',
       };
 

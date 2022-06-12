@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class SearchResponseModel {
   String id, source, destination, busNumber, busName, agencyName;
   DateTime dateOfJourney, departure, arrival;
@@ -21,7 +23,8 @@ class SearchResponseModel {
       : id = json['bus_id'],
         source = json['source'],
         destination = json['destination'],
-        dateOfJourney = DateTime.parse(json['date_of_journey'] as String),
+        dateOfJourney =
+            (DateFormat("dd-MM-yyyy")).parse(json['date_of_journey'] as String),
         busNumber = json['bus_number'],
         busName = json['bus_name'],
         agencyName = json['agency_name'],
